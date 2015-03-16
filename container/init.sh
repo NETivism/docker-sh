@@ -30,12 +30,16 @@ if [ ! -d /var/lib/mysql/mysql ]; then
   mysql -uroot -e "CREATE USER '$DB'@'%' IDENTIFIED BY '$PW';"
   mysql -uroot -e "GRANT SELECT, INSERT, UPDATE, DELETE, CREATE, DROP, INDEX, ALTER, \
       CREATE TEMPORARY TABLES ON $DB.* TO '$DB'@'%';"
+  mysql -uroot -e "FLUSH PRIVILEGES;"
   echo "MYSQL_DB=$DB"
   echo "MYSQL_PW=$PW"
 else
   # if mysql stopped, start it
   /usr/bin/mysqld_safe > /dev/null 2>&1 &
 fi
+
+# initialize www server
+/usr/sbin/apache2ctl -D FOREGROUND > /dev/null 2>&1 &
 
 # enter to bash interface
 /bin/bash
