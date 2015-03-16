@@ -45,22 +45,28 @@ if [ -n "$STARTED" ]; then
   exit
 fi
 
-if [ $STOPPED ]; then
+if [ -n "$STOPPED" ]; then
   echo "Docker start ... $DOMAIN"
   docker start $DOMAIN
   exit
 fi
 
-if [ ! $STARTED ] && [ ! $STOPPED ]; then
+if [ -z "$STARTED" ] && [ -z "$STOPPED" ]; then
   echo "Docker run ... $DOMAIN"
-  echo "If first time init DB, your need to check out [docker logs $DOMAIN] to see password."
   DB=$(echo $DOMAIN | sed 's/[^a-zA-Z0-9]//g')
+  PW="$(pwgen -s -1 10)"
+  if [ ! -d /var/mysql/sites/$DOMAIN/mysql ]; then
+    echo "First time init DB, your need to check out [docker logs $DOMAIN] to see password."
+  else
+    echo "Your database already exists, attach it!"
+  fi
+
   docker run -d --name $DOMAIN \
              -p $PORT:80 \
              -v /var/www/sites/$DOMAIN:/var/www/html \
              -v /var/mysql/sites/$DOMAIN:/var/lib/mysql \
              -e INIT_DB=$DB \
-             -e INIT_PASSWD="$(pwgen -s -1 10)" \
+             -e INIT_PASSWD=$PW \
              -i -t $REPOS /home/docker/container/init.sh
   exit
 fi
