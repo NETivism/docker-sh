@@ -3,10 +3,10 @@
 # Usage info
 show_help() {
 cat << EOF
-Usage: ${0##*/} [-d DOMAIN] [-p PORT] [-r Docker-owner/Docker-repository]
+Usage: ${0##*/} [-d DOMAIN] [-p PASSWD] [-w PORT_WWW] [-m PORT_DB] [-r Docker-owner/Docker-repository]
     -d DOMAIN   Domain name for this site, will also assign to container name
-    -p PASSWD   Password for initialize mysql database
-    -n PORT     Parent port for mapping to Apache in container
+    -p PASSWD   Setup password when initialize mysql database
+    -w PORT_WWW Parent port for mapping to Apache in container
     -m PORT_DB  Parent port for mapping to MySQL in container
     -r REPOS    Registered repository on docker hub
 EOF
@@ -16,7 +16,7 @@ EOF
 
 # getopts specific
 OPTIND=1 # Reset is necessary if getopts was used previously in the script.  It is a good idea to make this local in a function.
-while getopts "hd:p:n:m:r:" opt; do
+while getopts "hd:p:w:m:r:" opt; do
     case "$opt" in
         h)
             show_help
@@ -26,7 +26,7 @@ while getopts "hd:p:n:m:r:" opt; do
             ;;
         p)  PASSWD=$OPTARG
             ;;
-        n)  PORT=$OPTARG
+        w)  PORT_WWW=$OPTARG
             ;;
         m)  PORT_DB=$OPTARG
             ;;
@@ -36,7 +36,7 @@ while getopts "hd:p:n:m:r:" opt; do
 done
 shift "$((OPTIND-1))" # Shift off the options and optional --.
 
-if [ -z "$DOMAIN" ] || [ -z "$PORT" ]; then
+if [ -z "$DOMAIN" ] || [ -z "$PORT_WWW" ]; then
   echo "You need specify all options"
   show_help >&2
   exit 1
@@ -74,7 +74,7 @@ if [ -z "$STARTED" ] && [ -z "$STOPPED" ]; then
   fi
 
   docker run -d --name $DOMAIN \
-             -p $PORT:80 \
+             -p $PORT_WWW:80 \
              -p 127.0.0.1:$PORT_DB:3306 \
              -v /var/www/sites/$DOMAIN:/var/www/html \
              -v /var/mysql/sites/$DOMAIN:/var/lib/mysql \
