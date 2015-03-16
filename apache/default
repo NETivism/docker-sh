@@ -19,7 +19,7 @@ LimitRequestFieldSize 4094
                 AllowOverride None
         </Directory>
         <Directory /var/www/html>
-                FollowSymLinks
+                Options FollowSymLinks
                 AllowOverride All
                 Order allow,deny
                 allow from all
