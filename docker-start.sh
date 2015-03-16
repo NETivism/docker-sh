@@ -4,8 +4,10 @@
 show_help() {
 cat << EOF
 Usage: ${0##*/} [-d DOMAIN] [-p PORT] [-r Docker-owner/Docker-repository]
-    -d DOMAIN   Domain name for this site, also use for container name
-    -p PORT     Parent host for mapping to container Apache
+    -d DOMAIN   Domain name for this site, will also assign to container name
+    -p PASSWD   Password for initialize mysql database
+    -n PORT     Parent port for mapping to Apache in container
+    -m PORT_DB  Parent port for mapping to MySQL in container
     -r REPOS    Registered repository on docker hub
 EOF
 }
@@ -14,7 +16,7 @@ EOF
 
 # getopts specific
 OPTIND=1 # Reset is necessary if getopts was used previously in the script.  It is a good idea to make this local in a function.
-while getopts "hd:p:r:" opt; do
+while getopts "hd:p:n:m:r:" opt; do
     case "$opt" in
         h)
             show_help
@@ -22,7 +24,11 @@ while getopts "hd:p:r:" opt; do
             ;;
         d)  DOMAIN=$OPTARG
             ;;
-        p)  PORT=$OPTARG
+        p)  PASSWD=$OPTARG
+            ;;
+        n)  PORT=$OPTARG
+            ;;
+        m)  PORT_DB=$OPTARG
             ;;
         r)  REPOS=$OPTARG
             ;;
@@ -54,19 +60,26 @@ fi
 if [ -z "$STARTED" ] && [ -z "$STOPPED" ]; then
   echo "Docker run ... $DOMAIN"
   DB=$(echo $DOMAIN | sed 's/[^a-zA-Z0-9]//g')
-  PW="$(pwgen -s -1 10)"
+  if [ -z "$PASSWD" ]; then
+    echo "Install pwgen ... "
+    apt-get install -y pwgen
+    PASSWD="$(pwgen -s -1 10)"
+  fi
   if [ ! -d /var/mysql/sites/$DOMAIN/mysql ]; then
-    echo "First time init DB, your need to check out [docker logs $DOMAIN] to see password."
+    echo "First time init DB:"
+    echo "DB_NAME: $DB"
+    echo "DB_PASS: $PASSWD"
   else
-    echo "Your database already exists, attach it!"
+    echo "Your database already exists!"
   fi
 
   docker run -d --name $DOMAIN \
              -p $PORT:80 \
+             -p 127.0.0.1:$PORT_DB:3306 \
              -v /var/www/sites/$DOMAIN:/var/www/html \
              -v /var/mysql/sites/$DOMAIN:/var/lib/mysql \
              -e INIT_DB=$DB \
-             -e INIT_PASSWD=$PW \
+             -e INIT_PASSWD=$PASSWD \
              -i -t $REPOS /home/docker/container/init.sh
   exit
 fi
