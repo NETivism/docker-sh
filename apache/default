@@ -1,0 +1,40 @@
+# Apache HTTP Server Byte Range Denial of Service
+LimitRequestFieldSize 4094
+
+# redirect error to front
+#ErrorDocument 403 /index.php
+#ErrorDocument 404 /index.php
+
+# Deny accesss of these files
+<FilesMatch "(INSTALL\.txt|INSTALL\..+\.txt|CHANGELOG\.txt|phpmyadmin|UPGRADE\.txt|README\.txt|install\.php|update\.php|cron\.php)$">
+  Order allow,deny
+  Deny from all
+</FilesMatch>
+
+<VirtualHost *:80>
+        ServerAdmin mis@netivism.com.tw
+
+        DocumentRoot /var/www/html
+        <Directory />
+                AllowOverride None
+        </Directory>
+        <Directory /var/www/html>
+                FollowSymLinks
+                AllowOverride All
+                Order allow,deny
+                allow from all
+        </Directory>
+        <Directory /var/www/html/log>
+                AllowOverride none
+                Order allow,deny
+                deny from all
+        </Directory>
+
+        ErrorLog /var/www/html/log/error.log
+
+        # Possible values include: debug, info, notice, warn, error, crit,
+        # alert, emerg.
+        LogLevel error
+
+        ErrorLog /var/www/html/log/access.log
+</VirtualHost>
