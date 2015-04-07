@@ -1,14 +1,18 @@
-#!/bin/sh
+#!/bin/bash
 
 # Usage info
 show_help() {
 cat << EOF
-Usage: ${0##*/} [-d DOMAIN] [-p PASSWD] [-w PORT_WWW] [-m PORT_DB] [-r Docker-owner/Docker-repository]
+Help: 
+    When docker started, this will exec and enter docker base on -d
+    When docker stopped, this will start again base on -d
+
+Usage: ${0##*/} -d DOMAIN -w PORT_WWW -m PORT_DB -r Docker-owner/Docker-repository [-p PASSWD] 
     -d DOMAIN   Domain name for this site, will also assign to container name
-    -p PASSWD   Setup password when initialize mysql database
     -w PORT_WWW Parent port for mapping to Apache in container
     -m PORT_DB  Parent port for mapping to MySQL in container
     -r REPOS    Registered repository on docker hub
+    -p PASSWD   Optional. Setup password when initialize mysql database
 EOF
 }
 
@@ -37,8 +41,9 @@ while getopts "hd:p:w:m:r:" opt; do
 done
 shift "$((OPTIND-1))" # Shift off the options and optional --.
 
-if [ -z "$DOMAIN" ] || [ -z "$PORT_WWW" ]; then
-  echo "You need specify all options"
+# before attach / restart, we need at least docker name
+if [ -z "$DOMAIN" ]; then
+  echo -e "\e[1;31m[Required]\e[0m -d option is required to restart / attach docker"
   show_help >&2
   exit 1
 fi
@@ -48,7 +53,7 @@ STOPPED=`docker ps -a -f exited=0 | grep $DOMAIN`
 
 if [ -n "$STARTED" ]; then
   echo "Docker attach exists container ... $DOMAIN"
-  docker attach $DOMAIN
+  docker exec -it $DOMAIN bash
   exit
 fi
 
@@ -56,6 +61,13 @@ if [ -n "$STOPPED" ]; then
   echo "Docker start ... $DOMAIN"
   docker start $DOMAIN
   exit
+fi
+
+## before docker run, we should check all options exists
+if [ -z "$PORT_DB" ] || [ -z "$PORT_WWW" ] || [ -z "$REPOS" ]; then
+  echo -e "\e[1;31m[Required]\e[0m -d, -w, -m, -r options are required when processing docker run"
+  show_help >&2
+  exit 1
 fi
 
 if [ -z "$STARTED" ] && [ -z "$STOPPED" ]; then
