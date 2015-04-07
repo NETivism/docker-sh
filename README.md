@@ -1,13 +1,17 @@
 # Directory Structure
 
 ```
-| apache
-| - default - default config for apache+php, will link when docker run
-| container
-| - init.sh - exec when docker run, init directory, db etc. Start apache mysql service.
-| php
-| - default52 - php 5.2 version specific config file, will link when docker run
-| *.sh - scripts for handling docker
+/apache
+/apache/default
+  - default config for apache+php, will link when docker run
+/container
+/container/init.sh
+  - exec when docker run, init directory, db etc. Start apache mysql service.
+/php
+/php/default52
+  - php 5.2 version specific config file, will link when docker run
+/*.sh
+  - scripts for handling docker
 ```
 
 # docker-start.sh
