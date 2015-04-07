@@ -13,6 +13,7 @@ EOF
 }
 
 # Initialize vars
+HOSTIP=`ip route | awk '/docker0/ { print $NF }'`
 
 # getopts specific
 OPTIND=1 # Reset is necessary if getopts was used previously in the script.  It is a good idea to make this local in a function.
@@ -74,13 +75,13 @@ if [ -z "$STARTED" ] && [ -z "$STOPPED" ]; then
   fi
 
   docker run -d --name $DOMAIN \
+             --add-host=dockerhost:$HOSTIP \
              -p $PORT_WWW:80 \
              -p 127.0.0.1:$PORT_DB:3306 \
              -v /var/www/sites/$DOMAIN:/var/www/html \
              -v /var/mysql/sites/$DOMAIN:/var/lib/mysql \
              -e INIT_DB=$DB \
              -e INIT_PASSWD=$PASSWD \
-             -i -t $REPOS /home/docker/container/init.sh \
-             --add-host=dockerhost:$(ip route | awk '/docker0/ { print $NF }')
+             -i -t $REPOS /home/docker/container/init.sh
   exit
 fi
