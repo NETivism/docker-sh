@@ -4,8 +4,15 @@
 show_help() {
 cat << EOF
 Help: 
-    When docker started, this will exec and enter docker base on -d
-    When docker stopped, this will start again base on -d
+  Container started, this will exec and enter docker base on -d
+  Container stopped, this will start again base on -d
+    docker-start.sh -d test.com    
+
+  Container not exists, this will install(docker run) container
+    docker-start.sh -d test.com -w 12345 -m 23456 -r docker-owner/docker-repository
+
+  Add database password at the end
+    docker-start.sh -d test.com -w 12345 -m 23456 -r docker-owner/docker-repository -p 12345
 
 Usage: ${0##*/} -d DOMAIN -w PORT_WWW -m PORT_DB -r Docker-owner/Docker-repository [-p PASSWD] 
     -d DOMAIN   Domain name for this site, will also assign to container name
