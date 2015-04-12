@@ -28,7 +28,7 @@ if [ ! -d /var/lib/mysql/mysql ]; then
   mysql -uroot -e "UPDATE mysql.user set Password=PASSWORD('$PW') where user = 'root';"
   mysql -uroot -e "CREATE DATABASE $DB CHARACTER SET utf8 COLLATE utf8_general_ci;"
   mysql -uroot -e "CREATE USER '$DB'@'%' IDENTIFIED BY '$PW';"
-  mysql -uroot -e "GRANT SELECT, LOCK TABLES ON 'mysql'.* TO '$DB'@'%';"
+  mysql -uroot -e "GRANT SELECT, LOCK TABLES ON 'information_schema'.* TO '$DB'@'%';"
   mysql -uroot -e "GRANT SELECT, INSERT, UPDATE, DELETE, CREATE, DROP, INDEX, ALTER, LOCK TABLES, TRIGGER, \
       SHOW VIEW, EVENT, CREATE TEMPORARY TABLES ON $DB.* TO '$DB'@'%';"
   mysql -uroot -e "FLUSH PRIVILEGES;"
