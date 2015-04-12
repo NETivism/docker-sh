@@ -16,9 +16,9 @@ fi
 if [ ! -d /var/lib/mysql/mysql ]; then
   # Setup MySQL data directory.
   echo "Initializing mysql data dir to /var/lib/mysql ..."
-  mysql_install_db --datadir=/var/lib/mysql --user=mysql
+  mysql_install_db --datadir=/var/lib/mysql
 
-  /usr/bin/mysqld_safe --user=mysql > /dev/null 2>&1 &
+  /usr/bin/mysqld_safe > /dev/null 2>&1 &
 
   while (true); do
     sleep 3s
@@ -38,7 +38,7 @@ if [ ! -d /var/lib/mysql/mysql ]; then
 else
   # if mysql stopped, start it
   echo "MySQL Data dir already exists!"
-  /usr/bin/mysqld_safe --user=mysql > /dev/null 2>&1 &
+  /usr/bin/mysqld_safe > /dev/null 2>&1 &
 fi
 
 # initialize www server
