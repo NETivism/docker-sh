@@ -80,6 +80,7 @@ if [ -z "$STARTED" ] && [ -z "$STOPPED" ]; then
              -v /var/mysql/sites/$DOMAIN:/var/lib/mysql \
              -e INIT_DB=$DB \
              -e INIT_PASSWD=$PASSWD \
-             -i -t $REPOS /home/docker/container/init.sh
+             -i -t $REPOS /home/docker/container/init.sh \
+             --add-host=dockerhost:$(ip route | awk '/docker0/ { print $NF }')
   exit
 fi
