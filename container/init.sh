@@ -7,12 +7,15 @@ cd /home/docker
 git pull
 
 # init files
-cp -f ./mysql/my.cnf /etc/mysql/my.cnf
-cp -f ./apache/netivism.conf /etc/apache2/conf.d/
+echo 'copy files...'
+cp -f /home/docker/mysql/my.cnf /etc/mysql/my.cnf
+cp -f /home/docker/apache/netivism.conf /etc/apache2/conf.d/
 if [ -f /usr/bin/php ]; then
+  echo 'copy php settings...'
   PHPVER=`/usr/bin/php -r "echo PHP_MAJOR_VERSION.PHP_MINOR_VERSION;"`
   ln -s /home/docker/php/default$PHPVER.ini /etc/php5/apache2/conf.d/
 fi
+echo 'copy done.'
 
 # init log directory
 if [ ! -d /var/www/html/log ]; then
