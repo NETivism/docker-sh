@@ -5,6 +5,7 @@ PW=$INIT_PASSWD
 # init script repository
 cd /home/docker
 git pull
+cp -f ./mysql/my.cnf /etc/mysql/my.cnf
 
 # init log directory
 if [ ! -d /var/www/html/log ]; then
