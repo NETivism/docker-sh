@@ -11,7 +11,7 @@ cp -f ./mysql/my.cnf /etc/mysql/my.cnf
 cp -f ./apache/netivism.conf /etc/apache2/conf.d/
 if [ -f /usr/bin/php ]; then
   PHPVER=`/usr/bin/php -r "echo PHP_MAJOR_VERSION.PHP_MINOR_VERSION;"`
-  ln -s /home/docker/php/default$PHPVER.ini /etc/php5/conf.d/default$PHPVER.ini
+  ln -s /home/docker/php/default$PHPVER.ini /etc/php5/apache2/conf.d/
 fi
 
 # init log directory
