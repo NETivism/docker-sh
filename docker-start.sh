@@ -25,6 +25,7 @@ EOF
 
 # Initialize vars
 HOSTIP=`ip route | awk '/docker0/ { print $NF }'`
+WORKDIR=`pwd`
 
 # getopts specific
 OPTIND=1 # Reset is necessary if getopts was used previously in the script.  It is a good idea to make this local in a function.
@@ -100,6 +101,7 @@ if [ -z "$STARTED" ] && [ -z "$STOPPED" ]; then
              -v /var/www/sites/$DOMAIN:/var/www/html \
              -v /var/mysql/sites/$DOMAIN:/var/lib/mysql \
              -v /etc/localtime:/etc/localtime:ro \
+             -v $WORKDIR/mysql/my.cnf:/etc/mysql/my.cnf \
              -e INIT_DB=$DB \
              -e INIT_PASSWD=$PASSWD \
              -e "TZ=Asia/Taipei" \
