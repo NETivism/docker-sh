@@ -105,6 +105,6 @@ if [ -z "$STARTED" ] && [ -z "$STOPPED" ]; then
              -e INIT_DB=$DB \
              -e INIT_PASSWD=$PASSWD \
              -e "TZ=Asia/Taipei" \
-             -i -t $REPOS /home/docker/container/init.sh
+             -i -t $REPOS /etc/ansible/docker-sh/container/init.sh
   exit
 fi
