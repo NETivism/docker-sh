@@ -3,7 +3,7 @@ DB=$INIT_DB
 PW=$INIT_PASSWD
 
 # init script repository
-cd /etc/ansible/docker-sh
+cd /home/docker
 
 # init log directory
 if [ ! -d /var/www/html/log ]; then
