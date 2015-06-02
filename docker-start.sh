@@ -80,7 +80,7 @@ fi
 
 if [ -z "$STARTED" ] && [ -z "$STOPPED" ]; then
   echo "Docker run ... $DOMAIN"
-  DB=$(echo $DOMAIN | sed 's/[^a-zA-Z0-9]//g')
+  DB=$(echo $DOMAIN | sed 's/[^a-zA-Z0-9]//g' | cut -c 1-10)
   if [ -z "$PASSWD" ]; then
     echo "Install pwgen ... "
     apt-get install -y pwgen
