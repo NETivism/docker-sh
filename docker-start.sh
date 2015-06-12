@@ -34,7 +34,7 @@ WORKDIR=`pwd`
 
 # getopts specific
 OPTIND=1 # Reset is necessary if getopts was used previously in the script.  It is a good idea to make this local in a function.
-while getopts "hd:p:w:m:r:" opt; do
+while getopts "hd:w:m:r:v:u:p" opt; do
     case "$opt" in
         h)
             show_help
@@ -42,17 +42,17 @@ while getopts "hd:p:w:m:r:" opt; do
             ;;
         d)  DOMAIN=$OPTARG
             ;;
-        p)  PASSWD=$OPTARG
-            ;;
         w)  PORT_WWW=$OPTARG
             ;;
         m)  PORT_DB=$OPTARG
             ;;
-        v)  MOUNT=$OPTARG
-            ;;
         r)  REPOS=$OPTARG
             ;;
+        v)  MOUNT=$OPTARG
+            ;;
         u)  DBNAME=$OPTARG
+            ;;
+        p)  PASSWD=$OPTARG
             ;;
     esac
 done
