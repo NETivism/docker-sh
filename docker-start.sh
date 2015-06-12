@@ -8,17 +8,22 @@ Help:
   Container stopped, this will start again base on -d
     docker-start.sh -d test.com    
 
-  Container not exists, this will install(docker run) container
+  Container not exists, this will install(docker run) container:
     docker-start.sh -d test.com -w 12345 -m 23456 -r docker-owner/docker-repository
 
-  Add database password at the end
-    docker-start.sh -d test.com -w 12345 -m 23456 -r docker-owner/docker-repository -p 12345
+  Add database name and password:
+    docker-start.sh -d test.com -w 12345 -m 23456 -r docker-owner/docker-repository -n demotestcom -p 12345
 
-Usage: ${0##*/} -d DOMAIN -w PORT_WWW -m PORT_DB -r Docker-owner/Docker-repository [-p PASSWD] 
+  Mount additional dir into container /mnt:
+    docker-start.sh -d test.com -w 12345 -m 23456 -r docker-owner/docker-repository -v /mnt/drupal-7.37
+
+Usage: ${0##*/} -d DOMAIN -w PORT_WWW -m PORT_DB -r Docker-owner/Docker-repository [-v MOUNT] [-u DBNAME] [-p PASSWD] 
     -d DOMAIN   Domain name for this site, will also assign to container name
     -w PORT_WWW Parent port for mapping to Apache in container
     -m PORT_DB  Parent port for mapping to MySQL in container
     -r REPOS    Registered repository on docker hub
+    -v MOUNT    Additional dir mounting to container
+    -u DBNAME   Database and mysql user name when first initialize
     -p PASSWD   Optional. Setup password when initialize mysql database
 EOF
 }
@@ -43,7 +48,11 @@ while getopts "hd:p:w:m:r:" opt; do
             ;;
         m)  PORT_DB=$OPTARG
             ;;
+        v)  MOUNT=$OPTARG
+            ;;
         r)  REPOS=$OPTARG
+            ;;
+        u)  DBNAME=$OPTARG
             ;;
     esac
 done
@@ -80,7 +89,11 @@ fi
 
 if [ -z "$STARTED" ] && [ -z "$STOPPED" ]; then
   echo "Docker run ... $DOMAIN"
-  DB=$(echo $DOMAIN | sed 's/[^a-zA-Z0-9]//g' | cut -c 1-10)
+  if [ -z "$DBNAME" ]; then
+    DB=$(echo $DOMAIN | sed 's/[^a-zA-Z0-9]//g' | cut -c 1-10)
+  else
+    DB=$DBNAME
+  fi
   if [ -z "$PASSWD" ]; then
     echo "Install pwgen ... "
     apt-get install -y pwgen
@@ -94,6 +107,12 @@ if [ -z "$STARTED" ] && [ -z "$STOPPED" ]; then
     echo "Your database already exists!"
   fi
 
+  if [ -z "$MOUNT" ]; then
+    DEST="/mnt/$( basename "$MOUNT" )"
+    MOUNT="-v $MOUNT:$DEST"
+  else
+    MOUNT=""
+  fi
   docker run -d --name $DOMAIN \
              --add-host=dockerhost:$HOSTIP \
              -p $PORT_WWW:80 \
@@ -101,7 +120,7 @@ if [ -z "$STARTED" ] && [ -z "$STOPPED" ]; then
              -v /var/www/sites/$DOMAIN:/var/www/html \
              -v /var/mysql/sites/$DOMAIN:/var/lib/mysql \
              -v /etc/localtime:/etc/localtime:ro \
-             -v $WORKDIR/mysql/my.cnf:/etc/mysql/my.cnf \
+             -v $WORKDIR/mysql/my.cnf:/etc/mysql/my.cnf $MOUNT \
              -e INIT_DB=$DB \
              -e INIT_PASSWD=$PASSWD \
              -e "TZ=Asia/Taipei" \
