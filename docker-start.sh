@@ -108,10 +108,10 @@ if [ -z "$STARTED" ] && [ -z "$STOPPED" ]; then
   fi
 
   if [ -z "$MOUNT" ]; then
+    MOUNT=""
+  else
     DEST="/mnt/$( basename "$MOUNT" )"
     MOUNT="-v $MOUNT:$DEST"
-  else
-    MOUNT=""
   fi
   docker run -d --name $DOMAIN \
              --add-host=dockerhost:$HOSTIP \
