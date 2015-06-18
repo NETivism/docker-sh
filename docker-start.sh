@@ -107,7 +107,7 @@ if [ -z "$STARTED" ] && [ -z "$STOPPED" ]; then
     echo "Your database already exists!"
   fi
 
-  if [ -z "$MOUNT" ]; then
+  if [ ! "$MOUNT" ]; then
     MOUNT=""
   else
     DEST="/mnt/$( basename "$MOUNT" )"
