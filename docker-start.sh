@@ -12,7 +12,7 @@ Help:
     docker-start.sh -d test.com -w 12345 -m 23456 -r docker-owner/docker-repository
 
   Add database name and password:
-    docker-start.sh -d test.com -w 12345 -m 23456 -r docker-owner/docker-repository -n demotestcom -p 12345
+    docker-start.sh -d test.com -w 12345 -m 23456 -r docker-owner/docker-repository -u demotestcom -p 12345
 
   Mount additional dir into container /mnt:
     docker-start.sh -d test.com -w 12345 -m 23456 -r docker-owner/docker-repository -v /mnt/drupal-7.37
@@ -34,7 +34,7 @@ WORKDIR=`pwd`
 
 # getopts specific
 OPTIND=1 # Reset is necessary if getopts was used previously in the script.  It is a good idea to make this local in a function.
-while getopts "hd:w:m:r:v:u:p" opt; do
+while getopts "hd:w:m:r:v:u:p:" opt; do
     case "$opt" in
         h)
             show_help
