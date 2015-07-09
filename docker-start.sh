@@ -95,9 +95,7 @@ if [ -z "$STARTED" ] && [ -z "$STOPPED" ]; then
     DB=$DBNAME
   fi
   if [ -z "$PASSWD" ]; then
-    echo "Install pwgen ... "
-    apt-get install -y pwgen
-    PASSWD="$(pwgen -s -1 10)"
+    PASSWD=`tr -dc '12345!#qwertQWERTasdfgASDFGzxcvbZXCVB' < /dev/urandom | head -c10; echo ""`
   fi
   if [ ! -d /var/mysql/sites/$DOMAIN/mysql ]; then
     echo "First time init DB:"
