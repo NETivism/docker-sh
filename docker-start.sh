@@ -113,7 +113,7 @@ if [ -z "$STARTED" ] && [ -z "$STOPPED" ]; then
   fi
   docker run -d --name $DOMAIN \
              --add-host=dockerhost:$HOSTIP \
-             -p $PORT_WWW:80 \
+             -p 127.0.0.1:$PORT_WWW:80 \
              -p 127.0.0.1:$PORT_DB:3306 \
              -v /var/www/sites/$DOMAIN:/var/www/html \
              -v /var/mysql/sites/$DOMAIN:/var/lib/mysql \
