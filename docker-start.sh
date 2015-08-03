@@ -122,6 +122,7 @@ if [ -z "$STARTED" ] && [ -z "$STOPPED" ]; then
              -e INIT_DB=$DB \
              -e INIT_PASSWD=$PASSWD \
              -e "TZ=Asia/Taipei" \
+             -w "/var/www/html" \
              -i -t $REPOS /home/docker/container/init.sh
   exit
 fi
