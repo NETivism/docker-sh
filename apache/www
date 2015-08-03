@@ -1,12 +1,12 @@
 # Apache HTTP Server Byte Range Denial of Service
-LimitRequestFieldSize 4094
+# LimitRequestFieldSize 4094
 
 # redirect error to front
 #ErrorDocument 403 /index.php
 #ErrorDocument 404 /index.php
 
 # Deny accesss of these files
-<FilesMatch "(INSTALL\.txt|INSTALL\..+\.txt|CHANGELOG\.txt|phpmyadmin|UPGRADE\.txt|README\.txt|install\.php|update\.php|cron\.php)$">
+<FilesMatch "(INSTALL\.txt|INSTALL\..+\.txt|CHANGELOG\.txt|phpmyadmin|UPGRADE\.txt|README\.txt)$">
   Order allow,deny
   Deny from all
 </FilesMatch>
