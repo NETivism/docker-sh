@@ -111,6 +111,9 @@ if [ -z "$STARTED" ] && [ -z "$STOPPED" ]; then
     DEST="/mnt/$( basename "$MOUNT" )"
     MOUNT="-v $MOUNT:$DEST"
   fi
+
+  # make sure we have log dir
+  mkdir -p /var/www/sites/$DOMAIN/log/supervisor
   docker run -d --name $DOMAIN \
              --add-host=dockerhost:$HOSTIP \
              -p $PORT_WWW:80 \
