@@ -1,6 +1,12 @@
 #!/bin/bash
+date +"@ %Y-%m-%d %H:%M:%S %z"
+
+# wait for mysql start
+while ! pgrep -u mysql mysqld > /dev/null; do sleep 3; done
+
 DB=$INIT_DB
 PW=$INIT_PASSWD
+BASE="/var/www"
 
 # init script repository
 cd /home/docker && git pull
@@ -8,22 +14,14 @@ cd /home/docker && git pull
 # init log directory
 if [ ! -d /var/www/html/log ]; then
   mkdir /var/www/html/log
-  chown -R root:adm /var/www/html/log
+  chown root /var/www/html/log
 fi
+chgrp -R www-data $BASE/html/log && chmod -R g+ws $BASE/html/log
 
 # init mysql
-if [ ! -d /var/lib/mysql/mysql ]; then
-  # Setup MySQL data directory.
-  echo "Initializing mysql data dir to /var/lib/mysql ..."
-  mysql_install_db --datadir=/var/lib/mysql
+DB_EXISTS=`mysql -uroot -sN -e "SHOW databases" | grep $DB` 
 
-  /usr/bin/mysqld_safe > /dev/null 2>&1 &
-
-  while (true); do
-    sleep 3s
-    mysql -uroot -e "status" > /dev/null 2>&1 && break
-  done
-
+if [ -z "$DB_EXISTS" ] && [ -n "$DB" ]; then
   mysql -uroot -e "CREATE DATABASE $DB CHARACTER SET utf8 COLLATE utf8_general_ci;"
   mysql -uroot -e "CREATE USER '$DB'@'%' IDENTIFIED BY '$PW';"
   mysql -uroot -e "GRANT ALL PRIVILEGES ON $DB.* TO '$DB'@'%' WITH GRANT OPTION;"
@@ -33,13 +31,6 @@ if [ ! -d /var/lib/mysql/mysql ]; then
   echo "MYSQL_DB=$DB"
   echo "MYSQL_PW=$PW"
 else
-  # if mysql stopped, start it
-  echo "MySQL Data dir already exists!"
-  /usr/bin/mysqld_safe > /dev/null 2>&1 &
+  echo "Skip exist $DB, root password already setup before."
 fi
-
-# initialize www server
-/usr/sbin/apache2ctl -D FOREGROUND > /dev/null 2>&1 &
-
-# enter to bash interface
-/bin/bash
+date +"@ %Y-%m-%d %H:%M:%S %z"
