@@ -114,18 +114,20 @@ if [ -z "$STARTED" ] && [ -z "$STOPPED" ]; then
 
   # make sure we have log dir
   mkdir -p /var/www/sites/$DOMAIN/log/supervisor
+  mkdir -p /var/mysql/sites/$DOMAIN
   docker run -d --name $DOMAIN \
              --add-host=dockerhost:$HOSTIP \
-             -p $PORT_WWW:80 \
+             -p 127.0.0.1:$PORT_WWW:80 \
              -p 127.0.0.1:$PORT_DB:3306 \
              -v /var/www/sites/$DOMAIN:/var/www/html \
              -v /var/mysql/sites/$DOMAIN:/var/lib/mysql \
              -v /etc/localtime:/etc/localtime:ro \
              -v $WORKDIR/mysql/my.cnf:/etc/mysql/my.cnf $MOUNT \
+             -v $WORKDIR/container/init.sh:/init.sh \
              -e INIT_DB=$DB \
              -e INIT_PASSWD=$PASSWD \
              -e "TZ=Asia/Taipei" \
              -w "/var/www/html" \
-             -i -t $REPOS /home/docker/container/init.sh
+             -i -t $REPOS
   exit
 fi
