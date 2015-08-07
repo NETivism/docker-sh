@@ -17,6 +17,9 @@ Help:
   Mount additional dir into container /mnt:
     docker-start.sh -d test.com -w 12345 -m 23456 -r docker-owner/docker-repository -v /mnt/drupal-7.37
 
+  Force start:
+    docker-start.sh -d test.com -w 12345 -m 23456 -r docker-owner/docker-repository -v /mnt/drupal-7.37 -f
+
 Usage: ${0##*/} -d DOMAIN -w PORT_WWW -m PORT_DB -r Docker-owner/Docker-repository [-v MOUNT] [-u DBNAME] [-p PASSWD] 
     -d DOMAIN   Domain name for this site, will also assign to container name
     -w PORT_WWW Parent port for mapping to Apache in container
@@ -25,6 +28,7 @@ Usage: ${0##*/} -d DOMAIN -w PORT_WWW -m PORT_DB -r Docker-owner/Docker-reposito
     -v MOUNT    Additional dir mounting to container
     -u DBNAME   Database and mysql user name when first initialize
     -p PASSWD   Optional. Setup password when initialize mysql database
+    -f FORCE    Optional. Force start again even exists. Will kill docker and restart again 
 EOF
 }
 
@@ -34,7 +38,7 @@ WORKDIR=`pwd`
 
 # getopts specific
 OPTIND=1 # Reset is necessary if getopts was used previously in the script.  It is a good idea to make this local in a function.
-while getopts "hd:w:m:r:v:u:p:" opt; do
+while getopts "hd:w:m:r:v:u:p:f" opt; do
     case "$opt" in
         h)
             show_help
@@ -54,6 +58,8 @@ while getopts "hd:w:m:r:v:u:p:" opt; do
             ;;
         p)  PASSWD=$OPTARG
             ;;
+        f)  FORCE="true"
+            ;;
     esac
 done
 shift "$((OPTIND-1))" # Shift off the options and optional --.
@@ -67,11 +73,22 @@ fi
 
 STARTED=`docker ps | grep $DOMAIN`
 STOPPED=`docker ps -a -f exited=0 | grep $DOMAIN`
+if [ -n "$FORCE" ] && [ -n "$PORT_DB" ] && [ -n "$PORT_WWW" ] && [ -n "$REPOS" ]; then
+  echo "Stop and kill exists container .. then start again"
+  if [ -n "$STARTED" ]; then
+    docker exec -it $DOMAIN supervisorctl stop all && docker stop $DOMAIN && docker rm $DOMAIN
+    STARTED=""
+    STOPPED=""
+  fi
+  if [ -n "$STOPPED" ]; then
+    STARTED=""
+    STOPPED=""
+    docker rm $DOMAIN
+  fi
+fi
 
 if [ -n "$STARTED" ]; then
-  echo "Docker attach exists container ... $DOMAIN"
-  docker exec -it $DOMAIN bash
-  exit
+  echo "Container exists... $DOMAIN"
 fi
 
 if [ -n "$STOPPED" ]; then
@@ -117,6 +134,7 @@ if [ -z "$STARTED" ] && [ -z "$STOPPED" ]; then
   mkdir -p /var/mysql/sites/$DOMAIN
   docker run -d --name $DOMAIN \
              --add-host=dockerhost:$HOSTIP \
+             --restart=always \
              -p 127.0.0.1:$PORT_WWW:80 \
              -p 127.0.0.1:$PORT_DB:3306 \
              -v /var/www/sites/$DOMAIN:/var/www/html \

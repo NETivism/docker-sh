@@ -36,7 +36,7 @@ STARTED=`docker ps | grep $DOMAIN`
 
 if [ -n "$STARTED" ]; then
   echo "Stop container $DOMAIN ... "
-  docker stop $DOMAIN
+  docker exec -it $DOMAIN supervisorctl stop all && docker stop $DOMAIN
   echo "Remove container $DOMAIN ... (data still available)"
   docker rm $DOMAIN
   exit
