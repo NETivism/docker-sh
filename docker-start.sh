@@ -20,7 +20,7 @@ Help:
   Force start:
     docker-start.sh -d test.com -w 12345 -m 23456 -r docker-owner/docker-repository -v /mnt/drupal-7.37 -f
 
-Usage: ${0##*/} -d DOMAIN -w PORT_WWW -m PORT_DB -r Docker-owner/Docker-repository [-v MOUNT] [-u DBNAME] [-p PASSWD] 
+Usage: ${0##*/} -d DOMAIN -w PORT_WWW -m PORT_DB -r Docker-owner/Docker-repository [-v MOUNT] [-u DBNAME] [-p PASSWD]
     -d DOMAIN   Domain name for this site, will also assign to container name
     -w PORT_WWW Parent port for mapping to Apache in container
     -m PORT_DB  Parent port for mapping to MySQL in container
@@ -28,17 +28,19 @@ Usage: ${0##*/} -d DOMAIN -w PORT_WWW -m PORT_DB -r Docker-owner/Docker-reposito
     -v MOUNT    Additional dir mounting to container
     -u DBNAME   Database and mysql user name when first initialize
     -p PASSWD   Optional. Setup password when initialize mysql database
+    -s SCRIPT   Optional. Initialize script when docker run. Default is "init.sh" (container/init.sh)
     -f FORCE    Optional. Force start again even exists. Will kill docker and restart again 
 EOF
 }
 
 # Initialize vars
 HOSTIP=`ip route | awk '/docker0/ { print $NF }'`
-WORKDIR=`pwd`
+REALPATH=`realpath $0`
+WORKDIR=`dirname $REALPATH`
 
 # getopts specific
 OPTIND=1 # Reset is necessary if getopts was used previously in the script.  It is a good idea to make this local in a function.
-while getopts "hd:w:m:r:v:u:p:f" opt; do
+while getopts "hd:w:m:r:v:u:p:s:f" opt; do
     case "$opt" in
         h)
             show_help
@@ -57,6 +59,8 @@ while getopts "hd:w:m:r:v:u:p:f" opt; do
         u)  DBNAME=$OPTARG
             ;;
         p)  PASSWD=$OPTARG
+            ;;
+        s)  SCRIPT=$OPTARG
             ;;
         f)  FORCE="true"
             ;;
@@ -132,6 +136,16 @@ if [ -z "$STARTED" ] && [ -z "$STOPPED" ]; then
   # make sure we have log dir
   mkdir -p /var/www/sites/$DOMAIN/log/supervisor
   mkdir -p /var/mysql/sites/$DOMAIN
+  if [ -n "$SCRIPT" ]; then
+    if [ -f "$WORKDIR/container/$SCRIPT" ]; then
+      INIT_SCRIPT="$SCRIPT"
+    else
+      echo -e "\e[1;31m[MISSING]\e[0m -s option can't find your script file"
+      exit 1
+    fi
+  else
+    INIT_SCRIPT="$WORKDIR/container/init.sh"
+  fi
   docker run -d --name $DOMAIN \
              --add-host=dockerhost:$HOSTIP \
              --restart=always \
@@ -140,8 +154,9 @@ if [ -z "$STARTED" ] && [ -z "$STOPPED" ]; then
              -v /var/www/sites/$DOMAIN:/var/www/html \
              -v /var/mysql/sites/$DOMAIN:/var/lib/mysql \
              -v /etc/localtime:/etc/localtime:ro \
-             -v $WORKDIR/mysql/my.cnf:/etc/mysql/my.cnf $MOUNT \
-             -v $WORKDIR/container/init.sh:/init.sh \
+             -v $WORKDIR/mysql/my.cnf:/etc/mysql/my.cnf \
+             -v $INIT_SCRIPT:/init.sh \
+             $MOUNT \
              -e INIT_DB=$DB \
              -e INIT_PASSWD=$PASSWD \
              -e "TZ=Asia/Taipei" \
