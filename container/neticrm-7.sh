@@ -32,9 +32,9 @@ if [ -z "$DB_EXISTS" ] && [ -n "$DB" ]; then
   echo "MySQL initialize completed !!"
   echo "MYSQL_DB=$DB"
   echo "MYSQL_PW=$PW"
-  sleep 5s
 
   if [ ! -d "$BASE/html/includes" ]; then
+    date +"@ %Y-%m-%d %H:%M:%S %z"
     echo "Install Drupal ..."
     cd $BASE 
     php -d sendmail_path=`which true` ~/.composer/vendor/bin/drush.php --yes core-quick-drupal --core=drupal-${DRUPAL} --no-server --db-url=mysql://${DB}:${PW}@127.0.0.1/${DB} --account-pass=${PW} --site-name=${SITE} --enable=transliteration neticrm_build
@@ -42,8 +42,10 @@ if [ -z "$DB_EXISTS" ] && [ -n "$DB" ]; then
     mv $BASE/neticrm_build/drupal-${DRUPAL}/.htaccess $BASE/html/
     rm -f $BASE/neticrm_build
     cd $BASE && chown -R www-data:www-data html
+    echo "Done!"
   fi
 
+  date +"@ %Y-%m-%d %H:%M:%S %z"
   echo "Install netiCRM ..."
   if [ ! -h "$BASE/html/profiles/neticrmp" ]; then
     cd $BASE/html/profiles/neticrmp && ln -s /mnt/neticrm-7/neticrmp neticrmp
@@ -54,6 +56,7 @@ if [ -z "$DB_EXISTS" ] && [ -n "$DB" ]; then
 
   drush --yes pm-enable civicrm
   drush --yes pm-enable civicrm_demo
+  echo "Done!"
   #drush --yes pm-enable civicrm_preset
 else
   echo "Skip exist $DB, root password already setup before."
