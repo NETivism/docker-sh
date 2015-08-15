@@ -138,7 +138,7 @@ if [ -z "$STARTED" ] && [ -z "$STOPPED" ]; then
   mkdir -p /var/mysql/sites/$DOMAIN
   if [ -n "$SCRIPT" ]; then
     if [ -f "$WORKDIR/container/$SCRIPT" ]; then
-      INIT_SCRIPT="$SCRIPT"
+      INIT_SCRIPT="$WORKDIR/container/$SCRIPT"
     else
       echo -e "\e[1;31m[MISSING]\e[0m -s option can't find your script file"
       exit 1
