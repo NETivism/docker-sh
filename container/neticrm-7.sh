@@ -9,6 +9,7 @@ PW=$INIT_PASSWD
 BASE="/var/www"
 DRUPAL="7.38"
 SITE="NAME"
+MAIL="mis@netivism.com.tw"
 
 # init script repository
 cd /home/docker && git pull
@@ -37,27 +38,26 @@ if [ -z "$DB_EXISTS" ] && [ -n "$DB" ]; then
     date +"@ %Y-%m-%d %H:%M:%S %z"
     echo "Install Drupal ..."
     cd $BASE 
-    php -d sendmail_path=`which true` ~/.composer/vendor/bin/drush.php --yes core-quick-drupal --core=drupal-${DRUPAL} --no-server --db-url=mysql://${DB}:${PW}@127.0.0.1/${DB} --account-pass=${PW} --site-name=${SITE} --enable=transliteration neticrm_build
-    mv $BASE/neticrm_build/drupal-${DRUPAL}/* $BASE/html/
-    mv $BASE/neticrm_build/drupal-${DRUPAL}/.htaccess $BASE/html/
-    rm -f $BASE/neticrm_build
+    drush dl drupal-${DRUPAL}
+    mv $BASE/drupal-${DRUPAL}/* $BASE/html/
+    mv $BASE/drupal-${DRUPAL}/.htaccess $BASE/html/
+    rm -f $BASE/drupal-${DRUPAL}
+    if [ ! -h "$BASE/html/profiles/neticrmp" ]; then
+      cd $BASE/html/profiles && ln -s /mnt/neticrm-7/neticrmp neticrmp
+    fi
+    if [ ! -h "$BASE/html/sites/all/modules/civicrm" ]; then
+      cd $BASE/html/sites/all/modules && ln -s /mnt/neticrm-7/civicrm civicrm
+    fi
+    if [ ! -d "$BASE/html/profiles/neticrmp" ]; then
+      echo "neticrmp not found"
+      exit 1
+    fi
+
+    php -d sendmail_path=`which true` ~/.composer/vendor/bin/drush.php site-install neticrmp --account-mail=${MAIL} --account-name=admin --account-pass=${PW} --db-url=mysql://${DB}:${PW}@127.0.0.1/${DB} --site-mail=${MAIL} --site-name="${SITE}" --yes
+
     cd $BASE && chown -R www-data:www-data html
     echo "Done!"
   fi
-
-  date +"@ %Y-%m-%d %H:%M:%S %z"
-  echo "Install netiCRM ..."
-  if [ ! -h "$BASE/html/profiles/neticrmp" ]; then
-    cd $BASE/html/profiles/neticrmp && ln -s /mnt/neticrm-7/neticrmp neticrmp
-  fi
-  if [ ! -h "$BASE/html/sites/all/modules/civicrm" ]; then
-    cd $BASE/html/sites/all/modules && ln -s /mnt/neticrm-7/civicrm civicrm
-  fi
-
-  drush --yes pm-enable civicrm
-  drush --yes pm-enable civicrm_demo
-  echo "Done!"
-  #drush --yes pm-enable civicrm_preset
 else
   echo "Skip exist $DB, root password already setup before."
 fi
