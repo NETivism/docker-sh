@@ -7,7 +7,7 @@ while ! pgrep -u mysql mysqld > /dev/null; do sleep 3; done
 DB=$INIT_DB
 PW=$INIT_PASSWD
 BASE="/var/www"
-DRUPAL="7.38"
+DRUPAL="7.39"
 SITE="NAME"
 MAIL="mis@netivism.com.tw"
 
