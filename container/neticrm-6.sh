@@ -57,12 +57,15 @@ if [ -z "$DB_EXISTS" ] && [ -n "$DB" ]; then
     php -d sendmail_path=`which true` ~/.composer/vendor/bin/drush.php site-install neticrmp --account-mail=${MAIL} --account-name=admin --account-pass=${PW} --db-url=mysql://${DB}:${PW}@127.0.0.1/${DB} --site-mail=${MAIL} --site-name="${SITE}" --yes
 
     # trying to fix locale issue
-    echo "<?php locale_add_language('zh-hant', $name = NULL, $native = NULL, $direction = LANGUAGE_LTR, $domain = '', $prefix = '', $enabled = TRUE, $default = TRUE); ?>" > $BASE/html/sites/lang.init.inc;
+    echo "<?php require_once('includes/locale.inc'); locale_add_language('zh-hant', \$name = NULL, \$native = NULL, \$direction = LANGUAGE_LTR, \$domain = '', \$prefix = '', \$enabled = TRUE, \$default = TRUE); \$langcode = 'zh-hant'; \$preset_translation = drupal_get_path('module', 'neticrm_preset').'/translations/zh-hant.po'; \$file = new stdClass(); \$file->filepath = drupal_get_path('module', 'neticrm_preset').'/translations/zh-hant.po'; locale_inc_callback('_locale_import_po', \$file, 'zh-hant', LOCALE_IMPORT_OVERWRITE, 'default'); cache_clear_all();"  > $BASE/html/sites/lang.init.inc;
     cd $BASE/html/sites && \
       drush scr lang.init.inc && \
+      drush dl l10n_update --yes && \
       drush en l10n_update --yes && \
       drush l10n-update-refresh && \
-      drush l10n-update && \
+      drush l10n-update
+
+    cd $BASE/html/sites && \
       drush dis l10n_update --yes \
       drush dis update --yes
 
