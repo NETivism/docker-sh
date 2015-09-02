@@ -56,7 +56,7 @@ if [ -z "$DB_EXISTS" ] && [ -n "$DB" ]; then
     fi
 
     # make sure drush have correct base_url
-    if [ ! -f "$BASE/html/sites/default/drushrc.php"]; then
+    if [ ! -f "$BASE/html/sites/default/drushrc.php" ]; then
       echo -e "<?php\n\$options['uri'] = 'http://$INIT_DOMAIN';" > $BASE/html/sites/default/drushrc.php;
     fi
 
