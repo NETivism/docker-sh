@@ -159,6 +159,7 @@ if [ -z "$STARTED" ] && [ -z "$STOPPED" ]; then
              $MOUNT \
              -e INIT_DB=$DB \
              -e INIT_PASSWD=$PASSWD \
+             -e INIT_DOMAIN=$DOMAIN \
              -e "TZ=Asia/Taipei" \
              -w "/var/www/html" \
              -i -t $REPOS

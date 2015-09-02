@@ -6,6 +6,7 @@ while ! pgrep -u mysql mysqld > /dev/null; do sleep 3; done
 
 DB=$INIT_DB
 PW=$INIT_PASSWD
+DOMAIN=$INIT_DOMAIN
 BASE="/var/www"
 DRUPAL="6.37"
 SITE="NAME"
@@ -52,6 +53,11 @@ if [ -z "$DB_EXISTS" ] && [ -n "$DB" ]; then
     if [ ! -d "$BASE/html/profiles/neticrmp" ]; then
       echo "neticrmp not found"
       exit 1
+    fi
+
+    # make sure drush have correct base_url
+    if [ ! -f "$BASE/html/sites/default/drushrc.php"]; then
+      echo -e "<?php\n\$options['uri'] = 'http://$INIT_DOMAIN';" > $BASE/html/sites/default/drushrc.php;
     fi
 
     php -d sendmail_path=`which true` ~/.composer/vendor/bin/drush.php site-install neticrmp --account-mail=${MAIL} --account-name=admin --account-pass=${PW} --db-url=mysql://${DB}:${PW}@127.0.0.1/${DB} --site-mail=${MAIL} --site-name="${SITE}" --yes
