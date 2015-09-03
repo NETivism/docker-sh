@@ -42,7 +42,7 @@ if [ -z "$DB_EXISTS" ] && [ -n "$DB" ]; then
     drush dl drupal-${DRUPAL}
     mv $BASE/drupal-${DRUPAL}/* $BASE/html/
     mv $BASE/drupal-${DRUPAL}/.htaccess $BASE/html/
-    rm -f $BASE/drupal-${DRUPAL}
+    rm -Rf $BASE/drupal-${DRUPAL}
     if [ ! -h "$BASE/html/profiles/neticrmp" ]; then
       cd $BASE/html/profiles && ln -s /mnt/neticrm-7/neticrmp neticrmp
     fi
