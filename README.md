@@ -22,16 +22,26 @@ Help:
   Container stopped, this will start again base on -d
     docker-start.sh -d test.com    
 
-  Container not exists, this will install(docker run) container
+  Container not exists, this will install(docker run) container:
     docker-start.sh -d test.com -w 12345 -m 23456 -r docker-owner/docker-repository
 
-  Add database password at the end
-    docker-start.sh -d test.com -w 12345 -m 23456 -r docker-owner/docker-repository -p 12345
+  Add database name and password:
+    docker-start.sh -d test.com -w 12345 -m 23456 -r docker-owner/docker-repository -u demotestcom -p 12345
 
-Usage: docker-start.sh -d DOMAIN -w PORT_WWW -m PORT_DB -r Docker-owner/Docker-repository [-p PASSWD] 
+  Mount additional dir into container /mnt:
+    docker-start.sh -d test.com -w 12345 -m 23456 -r docker-owner/docker-repository -v /mnt/drupal-7.37
+
+  Force start:
+    docker-start.sh -d test.com -w 12345 -m 23456 -r docker-owner/docker-repository -v /mnt/drupal-7.37 -f
+
+Usage: docker-start.sh -d DOMAIN -w PORT_WWW -m PORT_DB -r Docker-owner/Docker-repository [-v MOUNT] [-u DBNAME] [-p PASSWD]
     -d DOMAIN   Domain name for this site, will also assign to container name
     -w PORT_WWW Parent port for mapping to Apache in container
     -m PORT_DB  Parent port for mapping to MySQL in container
     -r REPOS    Registered repository on docker hub
+    -v MOUNT    Additional dir mounting to container
+    -u DBNAME   Database and mysql user name when first initialize
     -p PASSWD   Optional. Setup password when initialize mysql database
+    -s SCRIPT   Optional. Initialize script when docker run. Default is "init.sh" (container/init.sh)
+    -f FORCE    Optional. Force start again even exists. Will kill docker and restart again 
 ```
