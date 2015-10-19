@@ -23,7 +23,7 @@ fi
 chgrp -R www-data $BASE/html/log && chmod -R g+ws $BASE/html/log
 
 # init mysql
-DB_EXISTS=`mysql -uroot -sN -e "SHOW databases" | grep $DB` 
+DB_EXISTS=`mysql -uroot -sN -e "SHOW databases" | grep $DB`
 
 if [ -z "$DB_EXISTS" ] && [ -n "$DB" ]; then
   mysql -uroot -e "CREATE DATABASE $DB CHARACTER SET utf8 COLLATE utf8_general_ci;"
@@ -43,7 +43,7 @@ if [ -z "$DB_EXISTS" ] && [ -n "$DB" ]; then
   if [ -z "$DRUPAL_EXISTS" ]; then
     date +"@ %Y-%m-%d %H:%M:%S %z"
     echo "Install Drupal ..."
-    cd $BASE 
+    cd $BASE
     drush dl drupal-${DRUPAL}
     mv $BASE/drupal-${DRUPAL}/* $BASE/html/
     mv $BASE/drupal-${DRUPAL}/.htaccess $BASE/html/
@@ -55,13 +55,22 @@ if [ -z "$DB_EXISTS" ] && [ -n "$DB" ]; then
   if [ ! -h "$BASE/html/sites/all/modules/civicrm" ]; then
     cd $BASE/html/sites/all/modules && ln -s /mnt/neticrm-7/civicrm civicrm
   fi
-  if [ ! -d "$BASE/html/profiles/neticrmp" ]; then
-    echo "neticrmp not found"
-    exit 1
-  fi
   # make sure drush have correct base_url
   if [ ! -f "$BASE/html/sites/default/drushrc.php" ]; then
     echo -e "<?php\n\$options['uri'] = 'http://$INIT_DOMAIN';\n\$options['php-notices'] = 'warning';" > $BASE/html/sites/default/drushrc.php;
+  fi
+
+  if [ ! -d "$BASE/html/profiles/neticrmp" ]; then
+    echo "Error: Profile not found. (missing neticrmp)"
+    exit 1
+  fi
+  if [ -f $BASE/html/sites/default/settings.php ]; then
+    echo "Error: Drupal already installed. (found settings.php)"
+    exit 1
+  fi
+  if [ -f $BASE/html/sites/default/civicrm.settings.php ]; then
+    echo "Error: CiviCRM already installed. (found civicrm.settings.php)"
+    exit 1
   fi
 
   cd $BASE/html
