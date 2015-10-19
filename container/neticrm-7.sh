@@ -35,7 +35,12 @@ if [ -z "$DB_EXISTS" ] && [ -n "$DB" ]; then
   echo "MYSQL_DB=$DB"
   echo "MYSQL_PW=$PW"
 
-  if [ ! -d "$BASE/html/includes" ]; then
+  if [ -f "$BASE/html/index.php" ]; then
+    DRUPAL_EXISTS=`cat $BASE/html/index.php | grep drupal`
+  else
+    DRUPAL_EXISTS=""
+  fi
+  if [ -z "$DRUPAL_EXISTS" ]; then
     date +"@ %Y-%m-%d %H:%M:%S %z"
     echo "Install Drupal ..."
     cd $BASE 
@@ -43,27 +48,27 @@ if [ -z "$DB_EXISTS" ] && [ -n "$DB" ]; then
     mv $BASE/drupal-${DRUPAL}/* $BASE/html/
     mv $BASE/drupal-${DRUPAL}/.htaccess $BASE/html/
     rm -Rf $BASE/drupal-${DRUPAL}
-    if [ ! -h "$BASE/html/profiles/neticrmp" ]; then
-      cd $BASE/html/profiles && ln -s /mnt/neticrm-7/neticrmp neticrmp
-    fi
-    if [ ! -h "$BASE/html/sites/all/modules/civicrm" ]; then
-      cd $BASE/html/sites/all/modules && ln -s /mnt/neticrm-7/civicrm civicrm
-    fi
-    if [ ! -d "$BASE/html/profiles/neticrmp" ]; then
-      echo "neticrmp not found"
-      exit 1
-    fi
-
-    # make sure drush have correct base_url
-    if [ ! -f "$BASE/html/sites/default/drushrc.php" ]; then
-      echo -e "<?php\n\$options['uri'] = 'http://$INIT_DOMAIN';\n\$options['php-notices'] = 'warning';" > $BASE/html/sites/default/drushrc.php;
-    fi
-
-    php -d sendmail_path=`which true` ~/.composer/vendor/bin/drush.php site-install neticrmp --account-mail=${MAIL} --account-name=admin --account-pass=${PW} --db-url=mysql://${DB}:${PW}@127.0.0.1/${DB} --site-mail=${MAIL} --site-name="${SITE}" --locale=zh-hant --yes
-
-    cd $BASE && chown -R www-data:www-data html
-    echo "Done!"
   fi
+  if [ ! -h "$BASE/html/profiles/neticrmp" ]; then
+    cd $BASE/html/profiles && ln -s /mnt/neticrm-7/neticrmp neticrmp
+  fi
+  if [ ! -h "$BASE/html/sites/all/modules/civicrm" ]; then
+    cd $BASE/html/sites/all/modules && ln -s /mnt/neticrm-7/civicrm civicrm
+  fi
+  if [ ! -d "$BASE/html/profiles/neticrmp" ]; then
+    echo "neticrmp not found"
+    exit 1
+  fi
+  # make sure drush have correct base_url
+  if [ ! -f "$BASE/html/sites/default/drushrc.php" ]; then
+    echo -e "<?php\n\$options['uri'] = 'http://$INIT_DOMAIN';\n\$options['php-notices'] = 'warning';" > $BASE/html/sites/default/drushrc.php;
+  fi
+
+  cd $BASE/html
+  php -d sendmail_path=`which true` ~/.composer/vendor/bin/drush.php site-install neticrmp --account-mail=${MAIL} --account-name=admin --account-pass=${PW} --db-url=mysql://${DB}:${PW}@127.0.0.1/${DB} --site-mail=${MAIL} --site-name="${SITE}" --locale=zh-hant --yes
+
+  cd $BASE && chown -R www-data:www-data html
+  echo "Done!"
 else
   echo "Skip exist $DB, root password already setup before."
 fi
