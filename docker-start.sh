@@ -3,24 +3,7 @@
 # Usage info
 show_help() {
 cat << EOF
-Help: 
-  Container started, this will exec and enter docker base on -d
-  Container stopped, this will start again base on -d
-    docker-start.sh -d test.com    
-
-  Container not exists, this will install(docker run) container:
-    docker-start.sh -d test.com -w 12345 -m 23456 -r docker-owner/docker-repository
-
-  Add database name and password:
-    docker-start.sh -d test.com -w 12345 -m 23456 -r docker-owner/docker-repository -u demotestcom -p 12345
-
-  Mount additional dir into container /mnt:
-    docker-start.sh -d test.com -w 12345 -m 23456 -r docker-owner/docker-repository -v /mnt/drupal-7.37
-
-  Force start:
-    docker-start.sh -d test.com -w 12345 -m 23456 -r docker-owner/docker-repository -v /mnt/drupal-7.37 -f
-
-Usage: ${0##*/} -d DOMAIN -w PORT_WWW -m PORT_DB -r Docker-owner/Docker-repository [-v MOUNT] [-u DBNAME] [-p PASSWD]
+Usage: ${0##*/} -d DOMAIN -w PORT_WWW -m PORT_DB -r hub/repository [-v MOUNT] [-u DBNAME] [-p PASSWD]
     -d DOMAIN   Domain name for this site, will also assign to container name
     -w PORT_WWW Parent port for mapping to Apache in container
     -m PORT_DB  Parent port for mapping to MySQL in container
@@ -29,7 +12,28 @@ Usage: ${0##*/} -d DOMAIN -w PORT_WWW -m PORT_DB -r Docker-owner/Docker-reposito
     -u DBNAME   Database and mysql user name when first initialize
     -p PASSWD   Optional. Setup password when initialize mysql database
     -s SCRIPT   Optional. Initialize script when docker run. Default is "init.sh" (container/init.sh)
+    -t TYPE     Optional. Default for small sites, you can choose bigger for: [default|medium|large]
     -f FORCE    Optional. Force start again even exists. Will kill docker and restart again 
+
+Help: 
+  Container started, this will exec and enter docker base on -d
+  Container stopped, this will start again base on -d
+    docker-start.sh -d test.com    
+
+  Container not exists, this will install(docker run) container:
+    docker-start.sh -d test.com -w 10001 -m 30001 -r hub/repository
+
+  Add database name and password:
+    docker-start.sh -d test.com -w 10001 -m 30001 -r hub/repository -u demotestcom -p 123456
+
+  Mount additional dir into container /mnt:
+    docker-start.sh -d test.com -w 10001 -m 30001 -r hub/repository -v /mnt/drupal-7.37
+
+  Force start and with pre-defined initial script:
+    docker-start.sh -d test.com -w 10001 -m 30001 -r hub/repository -v /mnt/drupal-7.37 -s neticrm-7.sh -f
+
+  Start and with pre-defined script for larger site:
+    docker-start.sh -d test.com -w 10001 -m 30001 -r hub/repository -v /mnt/drupal-7.37 -s neticrm-7.sh -t large
 EOF
 }
 
@@ -40,7 +44,7 @@ WORKDIR=`dirname $REALPATH`
 
 # getopts specific
 OPTIND=1 # Reset is necessary if getopts was used previously in the script.  It is a good idea to make this local in a function.
-while getopts "hd:w:m:r:v:u:p:s:f" opt; do
+while getopts "hd:w:m:r:v:u:p:s:t:f" opt; do
     case "$opt" in
         h)
             show_help
@@ -62,6 +66,8 @@ while getopts "hd:w:m:r:v:u:p:s:f" opt; do
             ;;
         s)  SCRIPT=$OPTARG
             ;;
+        t)  TYPE=$OPTARG
+            ;;
         f)  FORCE="true"
             ;;
     esac
@@ -70,8 +76,7 @@ shift "$((OPTIND-1))" # Shift off the options and optional --.
 
 # before attach / restart, we need at least docker name
 if [ -z "$DOMAIN" ]; then
-  echo -e "\e[1;31m[Required]\e[0m -d option is required to restart / attach docker"
-  show_help >&2
+  echo -e "\e[1;31m[Required]\e[0m -d option is required to restart / attach docker. Use -h for help."
   exit 1
 fi
 
@@ -103,8 +108,7 @@ fi
 
 ## before docker run, we should check all options exists
 if [ -z "$PORT_DB" ] || [ -z "$PORT_WWW" ] || [ -z "$REPOS" ]; then
-  echo -e "\e[1;31m[Required]\e[0m -d, -w, -m, -r options are required when processing docker run"
-  show_help >&2
+  echo -e "\e[1;31m[Required]\e[0m -d, -w, -m, -r options are required when processing docker run. Use -h for help."
   exit 1
 fi
 
@@ -140,11 +144,28 @@ if [ -z "$STARTED" ] && [ -z "$STOPPED" ]; then
     if [ -f "$WORKDIR/container/$SCRIPT" ]; then
       INIT_SCRIPT="$WORKDIR/container/$SCRIPT"
     else
-      echo -e "\e[1;31m[MISSING]\e[0m -s option can't find your script file"
+      echo -e "\e[1;31m[MISSING]\e[0m -s option can't find your script file. Use -f for help"
       exit 1
     fi
   else
     INIT_SCRIPT="$WORKDIR/container/init.sh"
+  fi
+
+  # TYPE
+  if [ -f $WORKDIR/mysql/${TYPE}.cnf ]; then
+    TYPE_MYSQL="-v $WORKDIR/mysql/${TYPE}.cnf:/etc/mysql/my.cnf"
+  else
+    TYPE_MYSQL="-v $WORKDIR/mysql/my.cnf:/etc/mysql/my.cnf"
+  fi
+  if [ -f $WORKDIR/php/${TYPE}55.ini ]; then
+    TYPE_PHP="-v $WORKDIR/php/${TYPE}55.ini:/etc/php5/docker_setup.ini"
+  else
+    TYPE_PHP="" # default alredy include when docker build
+  fi
+  if [ -f $WORKDIR/php/${TYPE}_opcache_blacklist ]; then
+    TYPE_PHP_BLACKLIST="-v $WORKDIR/php/${TYPE}_opcache_blacklist:/etc/php5/opcache_blacklist"
+  else
+    TYPE_PHP_BLACKLIST="" # default alredy include when docker build
   fi
   docker run -d --name $DOMAIN \
              --add-host=dockerhost:$HOSTIP \
@@ -154,8 +175,10 @@ if [ -z "$STARTED" ] && [ -z "$STOPPED" ]; then
              -v /var/www/sites/$DOMAIN:/var/www/html \
              -v /var/mysql/sites/$DOMAIN:/var/lib/mysql \
              -v /etc/localtime:/etc/localtime:ro \
-             -v $WORKDIR/mysql/my.cnf:/etc/mysql/my.cnf \
              -v $INIT_SCRIPT:/init.sh \
+             $TYPE_MYSQL \
+             $TYPE_PHP \
+             $TYPE_PHP_BLACKLIST \
              $MOUNT \
              -e INIT_DB=$DB \
              -e INIT_PASSWD=$PASSWD \
