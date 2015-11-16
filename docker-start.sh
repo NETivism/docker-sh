@@ -14,6 +14,7 @@ Usage: ${0##*/} -d DOMAIN -w PORT_WWW -m PORT_DB -r hub/repository [-v MOUNT] [-
     -s SCRIPT   Optional. Initialize script when docker run. Default is "init.sh" (container/init.sh)
     -t TYPE     Optional. Default for small sites, you can choose bigger for: [default|medium|large]
     -f FORCE    Optional. Force start again even exists. Will kill docker and restart again 
+    -D DEBUG    Optional, will enable debug mode, port will not bind to 127.0.0.1
 
 Help: 
   Container started, this will exec and enter docker base on -d
@@ -34,6 +35,9 @@ Help:
 
   Start and with pre-defined script for larger site:
     docker-start.sh -d test.com -w 10001 -m 30001 -r hub/repository -v /mnt/drupal-7.37 -s neticrm-7.sh -t large
+
+  Debug mode:
+    docker-start.sh -d test.com -w 10001 -m 30001 -r hub/repository -v /mnt/drupal-7.37 -D
 EOF
 }
 
@@ -44,11 +48,14 @@ WORKDIR=`dirname $REALPATH`
 
 # getopts specific
 OPTIND=1 # Reset is necessary if getopts was used previously in the script.  It is a good idea to make this local in a function.
-while getopts "hd:w:m:r:v:u:p:s:t:f" opt; do
+while getopts "hDd:w:m:r:v:u:p:s:t:f" opt; do
     case "$opt" in
         h)
             show_help
             exit 0
+            ;;
+        D)
+            DEBUG="true"
             ;;
         d)  DOMAIN=$OPTARG
             ;;
@@ -167,11 +174,17 @@ if [ -z "$STARTED" ] && [ -z "$STOPPED" ]; then
   else
     TYPE_PHP_BLACKLIST="" # default alredy include when docker build
   fi
+  if [ -n "$DEBUG" ]; then
+    BIND=""
+  else
+    BIND="127.0.0.1:"
+  fi
+
   docker run -d --name $DOMAIN \
              --add-host=dockerhost:$HOSTIP \
              --restart=always \
-             -p 127.0.0.1:$PORT_WWW:80 \
-             -p 127.0.0.1:$PORT_DB:3306 \
+             -p ${BIND}$PORT_WWW:80 \
+             -p ${BIND}$PORT_DB:3306 \
              -v /var/www/sites/$DOMAIN:/var/www/html \
              -v /var/mysql/sites/$DOMAIN:/var/lib/mysql \
              -v /etc/localtime:/etc/localtime:ro \
