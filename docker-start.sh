@@ -5,6 +5,8 @@ show_help() {
 cat << EOF
 Usage: ${0##*/} -d DOMAIN -w PORT_WWW -m PORT_DB -r hub/repository [-v MOUNT] [-u DBNAME] [-p PASSWD]
     -d DOMAIN   Domain name for this site, will also assign to container name
+    -n SITE_NAME Site name of this container
+    -l SITE_MAIL Site mail notification when this done.
     -w PORT_WWW Parent port for mapping to Apache in container
     -m PORT_DB  Parent port for mapping to MySQL in container
     -r REPOS    Registered repository on docker hub
@@ -43,12 +45,16 @@ EOF
 
 # Initialize vars
 HOSTIP=`ip route | awk '/docker0/ { print $NF }'`
+HOST_MAIL="$HOST_MAIL"
 REALPATH=`realpath $0`
 WORKDIR=`dirname $REALPATH`
+if [ -z "$HOST_MAIL" ]; then
+  HOST_MAIL="fixme@localhost.com"
+fi
 
 # getopts specific
 OPTIND=1 # Reset is necessary if getopts was used previously in the script.  It is a good idea to make this local in a function.
-while getopts "hDd:w:m:r:v:u:p:s:t:f" opt; do
+while getopts "hDd:w:m:r:v:u:p:s:t:n:l:f" opt; do
     case "$opt" in
         h)
             show_help
@@ -74,6 +80,10 @@ while getopts "hDd:w:m:r:v:u:p:s:t:f" opt; do
         s)  SCRIPT=$OPTARG
             ;;
         t)  TYPE=$OPTARG
+            ;;
+        n)  SITE_NAME=$OPTARG
+            ;;
+        l)  SITE_MAIL=$OPTARG
             ;;
         f)  FORCE="true"
             ;;
@@ -179,6 +189,17 @@ if [ -z "$STARTED" ] && [ -z "$STOPPED" ]; then
   else
     BIND="127.0.0.1:"
   fi
+  if [ -n "$SITE_NAME" ]; then
+    SITE_NAME="-e INIT_NAME=${SITE_NAME}"
+  else
+    SITE_NAME=""
+  fi
+  if [ -n "$SITE_MAIL" ]; then
+    SITE_MAIL="-e INIT_MAIL=${SITE_MAIL}"
+  else
+    SITE_MAIL=""
+  fi
+
 
   docker run -d --name $DOMAIN \
              --add-host=dockerhost:$HOSTIP \
@@ -196,6 +217,9 @@ if [ -z "$STARTED" ] && [ -z "$STOPPED" ]; then
              -e INIT_DB=$DB \
              -e INIT_PASSWD=$PASSWD \
              -e INIT_DOMAIN=$DOMAIN \
+             $SITE_NAME \
+             $SITE_MAIL \
+             -e HOST_MAIL=$HOST_MAIL \
              -e "TZ=Asia/Taipei" \
              -w "/var/www/html" \
              -i -t $REPOS
