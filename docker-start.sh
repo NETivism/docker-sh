@@ -45,12 +45,9 @@ EOF
 
 # Initialize vars
 HOSTIP=`ip route | awk '/docker0/ { print $NF }'`
-HOST_MAIL="$HOST_MAIL"
+HOST_MAIL="mis@netivism.com.tw"
 REALPATH=`realpath $0`
 WORKDIR=`dirname $REALPATH`
-if [ -z "$HOST_MAIL" ]; then
-  HOST_MAIL="fixme@localhost.com"
-fi
 
 # getopts specific
 OPTIND=1 # Reset is necessary if getopts was used previously in the script.  It is a good idea to make this local in a function.
