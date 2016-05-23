@@ -57,7 +57,7 @@ myisam-recover         = BACKUP
 
 # global 
 # /etc/my.cnf:
-innodb_buffer_pool_size=256M
+innodb_buffer_pool_size=128M
 innodb_log_buffer_size=1M
 query_cache_size=32M
 max_connections=20
