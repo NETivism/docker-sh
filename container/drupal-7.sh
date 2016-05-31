@@ -10,8 +10,9 @@ PW=$INIT_PASSWD
 DOMAIN=$INIT_DOMAIN
 BASE="/var/www"
 DRUPAL="7.43"
-SITE="NAME"
-MAIL="mis@netivism.com.tw"
+SITE=$INIT_NAME
+MAIL=$INIT_MAIL
+HOST_MAIL=$HOST_MAIL
 
 # init script repository
 cd /home/docker && git pull
@@ -62,7 +63,7 @@ if [ -z "$DB_EXISTS" ] && [ -n "$DB" ]; then
   fi
 
   cd $BASE/html
-  php -d sendmail_path=`which true` ~/.composer/vendor/bin/drush.php site-install standard --account-mail=${MAIL} --account-name=admin --account-pass=${PW} --db-url=mysql://${DB}:${PW}@127.0.0.1/${DB} --site-mail=${MAIL} --site-name="${SITE}" --locale=zh-hant --yes
+  php ~/.composer/vendor/bin/drush.php site-install standard --account-mail="${HOST_MAIL}" --account-name=admin --account-pass=${PW} --db-url=mysql://${DB}:${PW}@127.0.0.1/${DB} --site-mail=${MAIL} --site-name="${SITE}" --locale=zh-hant --yes
 
   cd $BASE && chown -R www-data:www-data html
   echo "Done!"
