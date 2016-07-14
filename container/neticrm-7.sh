@@ -76,7 +76,7 @@ if [ -z "$DB_EXISTS" ] && [ -n "$DB" ]; then
   fi
 
   cd $BASE/html
-  php ~/.composer/vendor/bin/drush.php site-install neticrmp --account-mail="${HOST_MAIL}" --account-name=admin --account-pass=${PW} --db-url=mysql://${DB}:${PW}@127.0.0.1/${DB} --site-mail=${MAIL} --site-name="${SITE}" --locale=zh-hant --yes
+  php ~/.composer/vendor/bin/drush.php site-install neticrmp --account-mail="${HOST_MAIL}" --account-name=admin --db-url=mysql://${DB}:${PW}@127.0.0.1/${DB} --site-mail=${MAIL} --site-name="${SITE}" --locale=zh-hant --yes
 
   cd $BASE && chown -R www-data:www-data html
   echo "Done!"
