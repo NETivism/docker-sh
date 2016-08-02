@@ -26,7 +26,7 @@ fi
 
 # pickup port
 for WWWPORT in $(seq 30000 1 31000); do
-  RESULT=`nc -z 127.0.0.1 "$WWWPORT" && echo 1`
+  RESULT=`docker ps | grep "$WWWPORT"`
   if [ -z "$RESULT" ]; then
     break
   fi
@@ -68,5 +68,6 @@ if [ -n "$WWWPORT" ] && [ -n "$DBPORT" ]; then
 
   docker cp $WORKDIR/mysql/my.cnf /etc/mysql/my.cnf
   docker ps -f "name=$1"
-  echo "$1 is listen on http://127.0.0.1:$WWWPORT"
+  IP=`docker-machine ip`
+  echo "$1 is listen on port http://$IP:$WWWPORT"
 fi
