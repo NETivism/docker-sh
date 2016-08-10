@@ -26,7 +26,7 @@ fi
 
 # pickup port
 for WWWPORT in $(seq 30000 1 31000); do
-  RESULT=`docker ps | grep "$WWWPORT"`
+  RESULT=`docker ps -qa | xargs docker inspect --format='{{ .HostConfig.PortBindings }}' | grep "$WWWPORT"`
   if [ -z "$RESULT" ]; then
     break
   fi
