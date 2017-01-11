@@ -9,8 +9,8 @@ DB=$INIT_DB
 PW=$INIT_PASSWD
 DOMAIN=$INIT_DOMAIN
 BASE="/var/www"
-DRUPAL="7.40"
-SITE="NAME"
+DRUPAL="7.53"
+SITE=$INIT_NAME
 MAIL="mis@netivism.com.tw"
 
 # init script repository
