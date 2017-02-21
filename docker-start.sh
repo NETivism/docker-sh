@@ -200,7 +200,7 @@ if [ -z "$STARTED" ] && [ -z "$STOPPED" ]; then
 
   docker run -d --name $DOMAIN \
              --add-host=dockerhost:$HOSTIP \
-             --restart=always \
+             --restart=unless-stopped \
              -p ${BIND}$PORT_WWW:80 \
              -p ${BIND}$PORT_DB:3306 \
              -v /var/www/sites/$DOMAIN:/var/www/html \
