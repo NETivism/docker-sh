@@ -24,7 +24,7 @@ fi
 chgrp -R www-data $BASE/html/log && chmod -R g+ws $BASE/html/log
 
 # init mysql
-DB_EXISTS=`mysql -uroot -sN -e "SHOW databases" | grep $DB`
+DB_EXISTS=`ls -1 /var/lib/mysql/ | grep $INIT_DB`
 
 function clear_demo() {
   # add clear.sql
