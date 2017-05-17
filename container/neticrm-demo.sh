@@ -45,6 +45,11 @@ function clear_demo() {
 function create_demo() {
   cd $BASE/html
   php -d sendmail_path=`which true` ~/.composer/vendor/bin/drush.php site-install neticrmp variables.civicrm_demo_sample_data=1 --account-mail=${MAIL} --account-name=admin --account-pass=${PW} --db-url=mysql://${DB}:${PW}@127.0.0.1/${DB} --site-mail=${MAIL} --site-name="${SITE}" --locale=zh-hant --yes
+  
+  # add mailing
+  echo "defined('VERSION') ? @include_once('/mnt/neticrm-'.substr(VERSION, 0, strpos(VERSION, '.')).'/global.inc') : @include_once('/mnt/neticrm-6/global.inc');" >> $BASE/html/sites/default/settings.php
+  echo "if(is_file(dirname(__FILE__).'/smtp.settings.php')){ @include_once('smtp.settings.php'); }" >> $BASE/html/sites/default/settings.php
+  echo "if(is_file(dirname(__FILE__).'/local.settings.php')){ @include_once('local.settings.php'); }" >> $BASE/html/sites/default/settings.php
 
   cd $BASE && chown -R www-data:www-data html
   cd $BASE/html
@@ -52,7 +57,7 @@ function create_demo() {
   drush user-add-role "網站總管" "demo"
   drush vset neticrm_welcome_message "歡迎您來到 netiCRM示範網站！本網站為測試用途，資料隨時清除，請勿留下個資以免外洩。測試帳號/密碼請用 demo / demouser 登入。<br>如有任何問題，請至 <a href='https://neticrm.tw'>https://neticrm.tw</a> 與我們聯繫。"
 
-  #background
+  # background
   RAND="$(( ( $RANDOM % 4 )  + 1 ))"
   wget "https://neticrm.tw/sites/neticrm.tw/files/demo/${RAND}.jpg" -O /var/www/html/sites/default/files/${RAND}.jpg
   drush vset --format=json theme_neticrm_settings "{\"toggle_logo\":1,\"toggle_name\":1,\"toggle_slogan\":1,\"toggle_node_user_picture\":1,\"toggle_comment_user_picture\":1,\"toggle_comment_user_verification\":1,\"toggle_favicon\":false,\"toggle_main_menu\":1,\"toggle_secondary_menu\":1,\"toggle_fullbg\":1,\"logo_path\":\"\",\"logo_upload\":\"\",\"logo_url\":\"\",\"favicon_path\":\"\",\"favicon_upload\":\"\",\"fullbg_path\":\"public:\/\/${RAND}.jpg\",\"neticrm_zen_tabs\":\"0\",\"neticrm_breadcrumb\":\"yes\",\"neticrm_breadcrumb_separator\":\"\u00bb\",\"neticrm_breadcrumb_home\":\"1\",\"neticrm_breadcrumb_trailing\":\"0\",\"neticrm_breadcrumb_title\":\"0\",\"clear_registry\":\"0\",\"default_logo\":0,\"default_favicon\":0,\"custom_fullbg\":1,\"enable_logo\":1}"
