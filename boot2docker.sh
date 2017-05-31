@@ -39,7 +39,7 @@ cd civicrm
 git clone -b 7.x-develop https://github.com/NETivism/netiCRM-neticrm neticrm
 git clone -b 7.x-develop https://github.com/NETivism/netiCRM-drupal drupal
 cd ..
-git clone -b 7.x-develop https://git.netivism.com.tw/jimmy/neticrmp.git neticrmp
+git clone -b 7.x-develop https://git.netivism.com.tw/netivism/neticrmp.git neticrmp
 
 if [ -n "$3" ] && [ -f "$WORKDIR/container/$3" ]; then
   SCRIPT="$WORKDIR/container/$3"
