@@ -9,7 +9,7 @@ DB=$INIT_DB
 PW=$INIT_PASSWD
 DOMAIN=$INIT_DOMAIN
 BASE="/var/www"
-DRUPAL="7.54"
+DRUPAL="7.55"
 SITE=$INIT_NAME
 MAIL="mis@netivism.com.tw"
 
@@ -22,6 +22,22 @@ if [ ! -d /var/www/html/log ]; then
   chown root /var/www/html/log
 fi
 chgrp -R www-data $BASE/html/log && chmod -R g+ws $BASE/html/log
+if [ -f /var/www/html/log/php.ini ]; then
+  if [ -d /etc/php5/fpm/conf.d ]; then
+    cd /etc/php5/fpm/conf.d && ln -s /var/www/html/log/php.ini xx-php.ini
+    supervisorctl restart apache2
+  fi
+  if [ -d /etc/php5/apache2/conf.d ]; then
+    cd /etc/php5/apache2/conf.d && ln -s /var/www/html/log/php.ini xx-php.ini
+    supervisorctl restart php-fpm
+  fi
+  sleep 3
+fi
+if [ -f /var/lib/mysql/mysql.cnf ] && [ -d /var/lib/mysql ]; then
+  cd /etc/mysql/conf.d && ln -s /var/lib/mysql/mysql.cnf custom.cnf
+  supervisorctl restart mysql
+  sleep 3
+fi
 
 # init mysql
 DB_EXISTS=`ls -1 /var/lib/mysql/ | grep $INIT_DB`
