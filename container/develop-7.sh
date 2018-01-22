@@ -41,8 +41,9 @@ if [ -f /var/lib/mysql/mysql.cnf ] && [ -d /var/lib/mysql ]; then
 fi
 
 # init mysql
-DB_EXISTS=`mysql -uroot -sN -e "SHOW databases" | grep $DB`
+DB_TEST=`mysql -uroot -sN -e "SHOW databases"`
 MYSQL_ACCESS=$?
+DB_EXISTS=`mysql -uroot -sN -e "SHOW databases" | grep $DB`
 
 if [ $MYSQL_ACCESS -eq 0 ] && [ -z "$DB_EXISTS" ] && [ -n "$DB" ]; then
   mysql -uroot -e "CREATE DATABASE $DB CHARACTER SET utf8 COLLATE utf8_general_ci;"
