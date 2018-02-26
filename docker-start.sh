@@ -197,9 +197,10 @@ if [ -z "$STARTED" ] && [ -z "$STOPPED" ]; then
     SITE_MAIL=""
   fi
 
-
+  HOSTNAME=${DOMAIN//\./\-}
   docker run -d --name $DOMAIN \
              --add-host=dockerhost:$HOSTIP \
+             -h $HOSTNAME \
              --restart=unless-stopped \
              -p ${BIND}$PORT_WWW:80 \
              -p ${BIND}$PORT_DB:3306 \
