@@ -94,8 +94,8 @@ if [ -z "$DOMAIN" ]; then
   exit 1
 fi
 
-STARTED=`docker ps | grep $DOMAIN`
-STOPPED=`docker ps -a -f exited=0 | grep $DOMAIN`
+STARTED=`docker ps --format '{{.Names}}'| grep "^$DOMAIN"`
+STOPPED=`docker ps -a -f exited=0 --format='{{.Names}}' | grep "^$DOMAIN"`
 if [ -n "$FORCE" ] && [ -n "$PORT_DB" ] && [ -n "$PORT_WWW" ] && [ -n "$REPOS" ]; then
   echo "Stop and kill exists container .. then start again"
   if [ -n "$STARTED" ]; then
