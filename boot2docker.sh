@@ -66,7 +66,7 @@ if [ -n "$WWWPORT" ] && [ -n "$DBPORT" ]; then
   -w "/var/www/html" \
   -i -t netivism/docker-wheezy-php55
 
-  docker cp $WORKDIR/mysql/my.cnf /etc/mysql/my.cnf
+  docker cp $WORKDIR/mysql/my.cnf $1:/etc/mysql/my.cnf
   docker ps -f "name=$1"
   IP=`docker-machine ip`
   echo "$1 is listen on port http://$IP:$WWWPORT"
