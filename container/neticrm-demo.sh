@@ -71,6 +71,7 @@ function create_demo() {
   cd $BASE/html
   drush user-create demo --password="demouser" --mail="demo@netivism.com.tw" 
   drush user-add-role "網站總管" "demo"
+  drush user-create demouser --password="demouser" --mail="demo+user@netivism.com.tw" 
   drush vset neticrm_welcome_message "歡迎您來到 netiCRM示範網站！本網站為測試用途，資料隨時清除，請勿留下個資以免外洩。測試帳號/密碼請用 demo / demouser 登入。<br>如有任何問題，請至 <a href='https://neticrm.tw'>https://neticrm.tw</a> 與我們聯繫。"
 
   # background
