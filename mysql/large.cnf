@@ -77,6 +77,8 @@ tmp_table_size=64M # CRM use tmp table very often
 bulk_insert_buffer_size=0
 max_allowed_packet=32MB
 
+group_concat_max_len=65535
+
 #
 # * Query Cache Configuration
 #
