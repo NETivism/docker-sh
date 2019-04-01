@@ -93,6 +93,25 @@ if [ $MYSQL_ACCESS -eq 0 ] && [ -z "$DB_EXISTS" ] && [ -n "$DB" ]; then
     exit 1
   fi
 
+  cd $BASE/html/sites/default
+  cat <<EOT > /tmp/conn.txt
+\$databases['default']['default'] = array(
+  'driver' => 'mysql',
+  'database' => '${DB}',
+  'username' => '${DB}',
+  'password' => '${PW}',
+  'host' => '127.0.0.1',
+  'charset' => 'utf8mb4',
+  'collation' => 'utf8mb4_general_ci',
+);
+EOT
+
+  sed '/$databases = array();/r /tmp/conn.txt' default.settings.php > settings.php
+  sed -i '/$databases = array();/d' settings.php
+  rm /tmp/conn.txt
+  SALT=`tr -dc '1234567890!_qwertyuiopQWERTYUIOPas!dfg0hjk0lASDFGHJKL!zxcvbnmZXCVBNM' < /dev/urandom | head -c48; echo ""`
+  sed -i "s/\$drupal_hash_salt = '';/\$drupal_hash_salt = '${SALT}';/g" settings.php
+
   cd $BASE/html
   php ~/.composer/vendor/bin/drush.php site-install neticrmp --account-mail="${HOST_MAIL}" --account-name=admin --account-pass=${PW} --db-url=mysql://${DB}:${PW}@127.0.0.1/${DB} --site-mail=${MAIL} --site-name="${SITE}" --locale=zh-hant --yes
 
