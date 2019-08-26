@@ -30,6 +30,16 @@ nice		= 0
 log_error = /var/www/html/log/mysql.log
 
 [mysqld]
+# do not treat 127.0.0.1 equal to localhost
+skip-name-resolve = 1
+
+#
+# * Character Settings
+#
+character-set-server  = utf8mb4
+character-set-client  = utf8mb4
+collation-server      = utf8mb4_unicode_ci
+
 #
 # * Basic Settings
 #
@@ -58,7 +68,7 @@ myisam-recover         = BACKUP
 # global 
 # /etc/my.cnf:
 innodb_buffer_pool_size=32M
-innodb_log_buffer_size=1M
+innodb_log_buffer_size=3M
 query_cache_size=4M
 max_connections=15
 key_buffer_size=8
@@ -132,6 +142,7 @@ innodb_log_file_size = 128M
 # utf8mb4
 innodb_large_prefix = true
 innodb_file_format = barracuda
+innodb_file_format_max = Barracuda
 
 [mysqldump]
 quick
