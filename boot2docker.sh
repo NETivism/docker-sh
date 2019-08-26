@@ -20,8 +20,8 @@ fi
 if [ ! -d "$MOUNTDIR/www/sites/$1/log/supervisor" ]; then
   mkdir -p $MOUNTDIR/www/sites/$1/log/supervisor
 fi
-if [ ! -d "$MOUNTDIR/mysql/sites/$1" ]; then
-  mkdir -p $MOUNTDIR/mysql/sites/$1
+if [ ! -d "$MOUNTDIR/sql/sites/$1" ]; then
+  mkdir -p $MOUNTDIR/sql/sites/$1
 fi
 
 # pickup port
@@ -52,7 +52,7 @@ if [ -n "$WWWPORT" ] && [ -n "$DBPORT" ]; then
   -p $WWWPORT:80 \
   -p $DBPORT:3306 \
   -v $MOUNTDIR/www/sites/$1:/var/www/html \
-  -v $MOUNTDIR/mysql/sites/$1:/var/lib/mysql \
+  -v $MOUNTDIR/sql/sites/$1:/var/lib/mysql \
   -v /etc/localtime:/etc/localtime:ro \
   -v $SCRIPT:/init.sh \
   -v $MOUNTDIR/neticrm-7:/mnt/neticrm-7 \
