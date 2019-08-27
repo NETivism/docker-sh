@@ -1,6 +1,12 @@
 #!/bin/bash
 date +"@ %Y-%m-%d %H:%M:%S %z"
 
+# Solve apache warning message refs:https://serverfault.com/questions/490825/how-to-set-the-domain-name-on-gnu-linux
+HOSTNAME=`hostname`
+IP=`hostname -i`
+sed -i "s/^$IP\t$HOSTNAME/$IP\t$INIT_NAME $HOSTNAME/g" /etc/hosts
+service apache2 restart
+
 # wait for mysql start
 while ! pgrep -u mysql mysqld > /dev/null; do sleep 3; done
 sleep 10
@@ -23,17 +29,6 @@ if [ ! -d /var/www/html/log ]; then
   chown root /var/www/html/log
 fi
 chgrp -R www-data $BASE/html/log && chmod -R g+ws $BASE/html/log
-if [ -f /var/www/html/log/php.ini ]; then
-  if [ -d /etc/php5/fpm/conf.d ]; then
-    cd /etc/php5/fpm/conf.d && ln -s /var/www/html/log/php.ini xx-php.ini
-    supervisorctl restart php-fpm
-  fi
-  if [ -d /etc/php5/apache2/conf.d ]; then
-    cd /etc/php5/apache2/conf.d && ln -s /var/www/html/log/php.ini xx-php.ini
-    supervisorctl restart apache2
-  fi
-  sleep 3
-fi
 if [ -f /var/lib/mysql/mysql.cnf ] && [ -d /var/lib/mysql ]; then
   cd /etc/mysql/conf.d && ln -s /var/lib/mysql/mysql.cnf custom.cnf
   supervisorctl restart mysql

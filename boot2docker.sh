@@ -64,7 +64,7 @@ if [ -n "$WWWPORT" ] && [ -n "$DBPORT" ]; then
   -e HOST_MAIL=mis@netivism.com.tw \
   -e "TZ=Asia/Taipei" \
   -w "/var/www/html" \
-  -i -t netivism/docker-wheezy-php55
+  -i -t junsuwhy/docker-debian-php
 
   docker cp $WORKDIR/mysql/my.cnf $1:/etc/mysql/my.cnf
   docker ps -f "name=$1"
