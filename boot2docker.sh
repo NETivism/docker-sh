@@ -1,27 +1,33 @@
 #!/bin/sh
-echo "Usage: ./$0 domain.com mail@mail.com neticrm-7.sh"
+echo "Usage:\n  $0 [domain] [email] [script] [repository]"
+echo "\nExample:\n  $0 test.org mail@mail.com neticrm-7.sh netivism/docker-wheezy-php55"
 
 REALPATH=`realpath $0`
 WORKDIR=`dirname $REALPATH`
 MOUNTDIR=$WORKDIR
 
 if [ -z "$1" ]; then
-  echo "No domain name."
+  echo "\nError:"
+  echo "  Required domain name."
   exit 1
 fi
 if [ -z "$2" ]; then
-  echo "No mail"
+  echo "\nError:"
+  echo "  Required email"
   exit 1
 fi
 
+RESULT=0
 if [ ! -d "$MOUNTDIR/neticrm-7" ]; then
   mkdir -p $MOUNTDIR/neticrm-7
+  RESULT=$?
 fi
 if [ ! -d "$MOUNTDIR/www/sites/$1/log/supervisor" ]; then
   mkdir -p $MOUNTDIR/www/sites/$1/log/supervisor
 fi
 if [ ! -d "$MOUNTDIR/sql/sites/$1" ]; then
   mkdir -p $MOUNTDIR/sql/sites/$1
+  RESULT=$?
 fi
 
 # pickup port
@@ -34,21 +40,29 @@ done
 DBPORT=`expr $WWWPORT + 1`
 
 cd $MOUNTDIR/neticrm-7
-git clone -b develop https://github.com/NETivism/netiCRM.git civicrm
-cd civicrm
-git clone -b 7.x-develop https://github.com/NETivism/netiCRM-neticrm neticrm
-git clone -b 7.x-develop https://github.com/NETivism/netiCRM-drupal drupal
-cd ..
-git clone -b 7.x-develop https://git.netivism.com.tw/netivism/neticrmp.git neticrmp
+if [ ! -d "$MOUNTDIR/neticrm-7/civicrm" ]; then
+  git clone -b develop https://github.com/NETivism/netiCRM.git civicrm
+  cd civicrm
+  git clone -b 7.x-develop https://github.com/NETivism/netiCRM-neticrm neticrm
+  git clone -b 7.x-develop https://github.com/NETivism/netiCRM-drupal drupal
+  cd ..
+  git clone -b 7.x-develop https://git.netivism.com.tw/netivism/neticrmp.git neticrmp
+fi
 
 if [ -n "$3" ] && [ -f "$WORKDIR/container/$3" ]; then
   SCRIPT="$WORKDIR/container/$3"
 else
   SCRIPT="$WORKDIR/container/neticrm-7.sh"
 fi
+REPOS="netivism/docker-wheezy-php55"
+if [ -n "$4" ]; then
+  REPOS=$4
+fi
 
 if [ -n "$WWWPORT" ] && [ -n "$DBPORT" ]; then
+  HOSTIP=`ip route | awk '/docker0/ { print $NF }' | grep "172\.17"`
   docker run -d --name $1 \
+  --add-host=dockerhost:$HOSTIP \
   -p $WWWPORT:80 \
   -p $DBPORT:3306 \
   -v $MOUNTDIR/www/sites/$1:/var/www/html \
@@ -64,10 +78,9 @@ if [ -n "$WWWPORT" ] && [ -n "$DBPORT" ]; then
   -e HOST_MAIL=mis@netivism.com.tw \
   -e "TZ=Asia/Taipei" \
   -w "/var/www/html" \
-  -i -t junsuwhy/docker-debian-php
+  -i -t $REPOS
 
   docker cp $WORKDIR/mysql/my.cnf $1:/etc/mysql/my.cnf
   docker ps -f "name=$1"
-  IP=`docker-machine ip`
-  echo "$1 is listen on port http://$IP:$WWWPORT"
+  echo "$1 is listen on port $WWWPORT"
 fi
