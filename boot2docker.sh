@@ -1,17 +1,18 @@
 #!/bin/sh
-echo "Usage:\n  $0 [domain] [email] [script] [repository]"
-echo "\nExample:\n  $0 test.org mail@mail.com neticrm-7.sh netivism/docker-wheezy-php55"
-
 REALPATH=`realpath $0`
 WORKDIR=`dirname $REALPATH`
 MOUNTDIR=$WORKDIR
 
 if [ -z "$1" ]; then
+  echo "Usage:\n  $0 [domain] [email] [script] [repository]"
+  echo "\nExample:\n  $0 test.org mail@mail.com neticrm-7.sh netivism/docker-wheezy-php55"
   echo "\nError:"
   echo "  Required domain name."
   exit 1
 fi
 if [ -z "$2" ]; then
+  echo "Usage:\n  $0 [domain] [email] [script] [repository]"
+  echo "\nExample:\n  $0 test.org mail@mail.com neticrm-7.sh netivism/docker-wheezy-php55"
   echo "\nError:"
   echo "  Required email"
   exit 1
