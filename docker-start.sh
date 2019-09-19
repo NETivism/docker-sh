@@ -44,7 +44,7 @@ EOF
 }
 
 # Initialize vars
-HOSTIP=`ip route | awk '/docker0/ { print $NF }' | grep "172\.17"`
+HOSTIP=$(ip -4 addr show docker0 | grep -Po 'inet \K[\d.]+')
 HOST_MAIL="mis@netivism.com.tw"
 REALPATH=`realpath $0`
 WORKDIR=`dirname $REALPATH`
