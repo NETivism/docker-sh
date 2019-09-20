@@ -61,7 +61,7 @@ if [ -n "$4" ]; then
 fi
 
 if [ -n "$WWWPORT" ] && [ -n "$DBPORT" ]; then
-  HOSTIP=`ip route | awk '/docker0/ { print $NF }' | grep "172\.17"`
+  HOSTIP=`ip route | grep "docker0" | xargs -n 1 | grep -oE "^172\.17\.[0-9]{1,3}\.[0-9]{1,3}$"`
   docker run -d --name $1 \
   --add-host=dockerhost:$HOSTIP \
   -p $WWWPORT:80 \
