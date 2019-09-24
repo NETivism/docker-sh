@@ -1,18 +1,18 @@
-#!/bin/sh
+#!/bin/bash
 REALPATH=`realpath $0`
 WORKDIR=`dirname $REALPATH`
 MOUNTDIR=$WORKDIR
 
 if [ -z "$1" ]; then
   echo "Usage:\n  $0 [domain] [email] [script] [repository]"
-  echo "\nExample:\n  $0 test.org mail@mail.com neticrm-7.sh netivism/docker-wheezy-php55"
+  echo "\nExample:\n  $0 test.org mail@mail.com neticrm-7.sh netivism/docker-debian-php"
   echo "\nError:"
   echo "  Required domain name."
   exit 1
 fi
 if [ -z "$2" ]; then
   echo "Usage:\n  $0 [domain] [email] [script] [repository]"
-  echo "\nExample:\n  $0 test.org mail@mail.com neticrm-7.sh netivism/docker-wheezy-php55"
+  echo "\nExample:\n  $0 test.org mail@mail.com neticrm-7.sh netivism/docker-debian-php"
   echo "\nError:"
   echo "  Required email"
   exit 1
@@ -61,9 +61,12 @@ if [ -n "$4" ]; then
 fi
 
 if [ -n "$WWWPORT" ] && [ -n "$DBPORT" ]; then
+  HOSTNAME="${1//\./-}"
   HOSTIP=`ip route | grep "docker0" | xargs -n 1 | grep -oE "^172\.17\.[0-9]{1,3}\.[0-9]{1,3}$"`
   docker run -d --name $1 \
   --add-host=dockerhost:$HOSTIP \
+  --restart=unless-stopped \
+  -h $HOSTNAME \
   -p $WWWPORT:80 \
   -p $DBPORT:3306 \
   -v $MOUNTDIR/www/sites/$1:/var/www/html \
