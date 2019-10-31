@@ -107,10 +107,10 @@ if [ -z "$DB_EXISTS" ] && [ -n "$DB" ]; then
     rm -Rf $BASE/drupal-${DRUPAL}
   fi
   if [ ! -h "$BASE/html/profiles/neticrmp" ]; then
-    cd $BASE/html/profiles && ln -s /mnt/neticrm-demo/neticrmp neticrmp
+    cd $BASE/html/profiles && ln -s /mnt/neticrm-7/neticrmp neticrmp
   fi
   if [ ! -h "$BASE/html/sites/all/modules/civicrm" ]; then
-    cd $BASE/html/sites/all/modules && ln -s /mnt/neticrm-demo/civicrm civicrm
+    cd $BASE/html/sites/all/modules && ln -s /mnt/neticrm-7/civicrm civicrm
   fi
   # make sure drush have correct base_url
   if [ ! -f "$BASE/html/sites/default/drushrc.php" ]; then
