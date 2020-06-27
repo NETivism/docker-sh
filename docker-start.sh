@@ -168,12 +168,12 @@ if [ -z "$STARTED" ] && [ -z "$STOPPED" ]; then
   # TYPE
   if [ -f $WORKDIR/mysql/${TYPE}.cnf ]; then
     TYPE_MYSQL="-v $WORKDIR/mysql/${TYPE}.cnf:/etc/mysql/my.cnf"
-    if [ $REPOS =~ "docker-debian-php" ]; then
+    if [[ $REPOS == "docker-debian-php"* ]]; then
       TYPE_MYSQL="-v $WORKDIR/mysql/${TYPE}103.cnf:/etc/mysql/my.cnf"
     fi
   else
     TYPE_MYSQL="-v $WORKDIR/mysql/my.cnf:/etc/mysql/my.cnf"
-    if [ $REPOS =~ "docker-debian-php" ]; then
+    if [[ $REPOS == "docker-debian-php"* ]]; then
       TYPE_MYSQL="-v $WORKDIR/mysql/my103.cnf:/etc/mysql/my.cnf"
     fi
   fi
