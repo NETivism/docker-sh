@@ -44,7 +44,7 @@ EOF
 }
 
 # Initialize vars
-HOSTIP=`ip route | awk '/docker0/ { print $NF }' | grep "172\.17"`
+HOSTIP=$(ip -4 addr show docker0 | grep -Po 'inet \K[\d.]+')
 HOST_MAIL="mis@netivism.com.tw"
 REALPATH=`realpath $0`
 WORKDIR=`dirname $REALPATH`
@@ -168,8 +168,14 @@ if [ -z "$STARTED" ] && [ -z "$STOPPED" ]; then
   # TYPE
   if [ -f $WORKDIR/mysql/${TYPE}.cnf ]; then
     TYPE_MYSQL="-v $WORKDIR/mysql/${TYPE}.cnf:/etc/mysql/my.cnf"
+    if echo "$REPOS" | grep -q "docker-debian-php"; then
+      TYPE_MYSQL="-v $WORKDIR/mysql/${TYPE}103.cnf:/etc/mysql/my.cnf"
+    fi
   else
     TYPE_MYSQL="-v $WORKDIR/mysql/my.cnf:/etc/mysql/my.cnf"
+    if echo "$REPOS" | grep -q "docker-debian-php"; then
+      TYPE_MYSQL="-v $WORKDIR/mysql/my103.cnf:/etc/mysql/my.cnf"
+    fi
   fi
   if [ -f $WORKDIR/php/${TYPE}55.ini ]; then
     TYPE_PHP="-v $WORKDIR/php/${TYPE}55.ini:/etc/php5/docker_setup.ini"
