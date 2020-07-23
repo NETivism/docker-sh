@@ -75,9 +75,8 @@ if [ "$REBUILD" -eq "1" ]; then
     exit 1
   fi
 else
-  QUIET=`docker ps -f "name=$1"`
-  RESULT=$?
-  if [ $RESULT -eq 0 ]; then
+  EXISTS=`docker ps -q -f "name=$1" | wc -l`
+  if [ $EXISTS -eq 1 ]; then
     echo -e "Error: exists container $1 detected. Add --rebuild parameter and try again"
     echo -e "This commend will update repository to latest verion"
     echo -e "This will not touch your civicrm / neticrm / neticrmp project code"
