@@ -112,6 +112,12 @@ if [ -n "$4" ] && [ "$4" != "--rebuild" ]; then
   REPOS=$4
 fi
 
+if [[ $REPOS =~ "docker-wheezy-php55" ]]; then
+  MYSQL_VERSION=""
+else
+  MYSQL_VERSION="103"
+fi
+
 if [ -n "$WWWPORT" ] && [ -n "$DBPORT" ]; then
   echo -e "Updating to latest repository of $REPOS ..."
   docker pull $REPOS
@@ -149,7 +155,7 @@ if [ -n "$WWWPORT" ] && [ -n "$DBPORT" ]; then
     exit 1
   fi
 
-  docker cp $WORKDIR/mysql/default103.cnf $1:/etc/mysql/my.cnf
+  docker cp $WORKDIR/mysql/default$MYSQL_VERSION.cnf $1:/etc/mysql/my.cnf
   RESULT=0
   QUIET=`docker ps -f "name=$1"`
   RESULT=$?
