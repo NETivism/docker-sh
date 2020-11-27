@@ -171,9 +171,15 @@ if [ -z "$STARTED" ] && [ -z "$STOPPED" ]; then
     if echo "$REPOS" | grep -q "docker-debian-php"; then
       TYPE_MYSQL="-v $WORKDIR/mysql/${TYPE}103.cnf:/etc/mysql/my.cnf"
     fi
+    if echo "$REPOS" | grep -q "docker-wheezy-php55:fpm56"; then
+      TYPE_MYSQL="-v $WORKDIR/mysql/${TYPE}103.cnf:/etc/mysql/my.cnf"
+    fi
   else
     TYPE_MYSQL="-v $WORKDIR/mysql/my.cnf:/etc/mysql/my.cnf"
     if echo "$REPOS" | grep -q "docker-debian-php"; then
+      TYPE_MYSQL="-v $WORKDIR/mysql/my103.cnf:/etc/mysql/my.cnf"
+    fi
+    if echo "$REPOS" | grep -q "docker-wheezy-php55:fpm56"; then
       TYPE_MYSQL="-v $WORKDIR/mysql/my103.cnf:/etc/mysql/my.cnf"
     fi
   fi
