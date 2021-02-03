@@ -9,7 +9,7 @@ DB=$INIT_DB
 PW=$INIT_PASSWD
 DOMAIN=$INIT_DOMAIN
 BASE="/var/www"
-DRUPAL="7.74"
+DRUPAL="7.78"
 SITE=$INIT_NAME
 MAIL="mis@netivism.com.tw"
 
@@ -45,7 +45,7 @@ DB_EXISTS=`ls -1 /var/lib/mysql/ | grep $INIT_DB`
 function clear_demo() {
   # add clear.sql
   echo "SET FOREIGN_KEY_CHECKS = 0; SET GROUP_CONCAT_MAX_LEN=32768; SET @tables = NULL; SELECT GROUP_CONCAT('\`', table_name, '\`') INTO @tables FROM information_schema.tables WHERE table_schema = (SELECT DATABASE()); SELECT IFNULL(@tables,'dummy') INTO @tables; SET @tables = CONCAT('DROP TABLE IF EXISTS ', @tables); PREPARE stmt FROM @tables; EXECUTE stmt; DEALLOCATE PREPARE stmt; SET FOREIGN_KEY_CHECKS = 1;" > /tmp/cleardb.sql
-  mysql -u\$INIT_DB -p\$INIT_PASSWD \$INIT_DB < /tmp/cleardb.sql
+  mysql -u$DB -p$PW $DB < /tmp/cleardb.sql
 
   if [ -f $BASE/html/sites/default/settings.php ]; then
     rm -f $BASE/html/sites/default/settings.php
