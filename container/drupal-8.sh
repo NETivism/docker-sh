@@ -67,7 +67,7 @@ if [ $MYSQL_ACCESS -eq 0 ] && [ -z "$DB_EXISTS" ] && [ -n "$DB" ]; then
   fi
 
   cd $BASE/html
-  php ~/.composer/vendor/bin/drush.php site-install standard --account-mail="${HOST_MAIL}" --account-name=admin --db-url=mysql://${DB}:${PW}@127.0.0.1/${DB} --site-mail=${MAIL} --site-name="${SITE}" --locale=zh-hant --yes
+  php ~/.composer/vendor/bin/drush.php site-install standard --account-mail="${HOST_MAIL}" --account-name=admin --db-url=mysql://${DB}:${PW}@localhost/${DB} --site-mail=${MAIL} --site-name="${SITE}" --locale=zh-hant --yes
 
   cd $BASE && chown -R www-data:www-data html
   echo "Done!"

@@ -60,7 +60,7 @@ function clear_demo() {
 }
 function create_demo() {
   cd $BASE/html
-  php -d sendmail_path=`which true` ~/.composer/vendor/bin/drush.php site-install neticrmp variables.civicrm_demo_sample_data=1 --account-mail=${MAIL} --account-name=admin --account-pass=${PW} --db-url=mysql://${DB}:${PW}@127.0.0.1/${DB} --site-mail=${MAIL} --site-name="${SITE}" --locale=zh-hant --yes
+  php -d sendmail_path=`which true` ~/.composer/vendor/bin/drush.php site-install neticrmp variables.civicrm_demo_sample_data=1 --account-mail=${MAIL} --account-name=admin --account-pass=${PW} --db-url=mysql://${DB}:${PW}@localhost/${DB} --site-mail=${MAIL} --site-name="${SITE}" --locale=zh-hant --yes
   
   # add mailing
   echo "defined('VERSION') ? @include_once('/mnt/neticrm-'.substr(VERSION, 0, strpos(VERSION, '.')).'/global.inc') : @include_once('/mnt/neticrm-6/global.inc');" >> $BASE/html/sites/default/settings.php
