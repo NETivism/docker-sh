@@ -27,6 +27,12 @@ if [ -f /var/www/html/log/php.ini ]; then
     cd /etc/php5/fpm/conf.d && ln -s /var/www/html/log/php.ini xx-php.ini
     supervisorctl restart php-fpm
   fi
+  for DIR in /etc/php/* ; do
+    if [ -d "$DIR/fpm/conf.d" ]; then
+      cd "$DIR/fpm/conf.d" && ln -s /var/www/html/log/php.ini xx-php.ini
+      supervisorctl restart php-fpm
+    fi
+  done
   if [ -d /etc/php5/apache2/conf.d ]; then
     cd /etc/php5/apache2/conf.d && ln -s /var/www/html/log/php.ini xx-php.ini
     supervisorctl restart apache2
