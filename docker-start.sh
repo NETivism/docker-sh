@@ -174,7 +174,7 @@ if [ -z "$STARTED" ] && [ -z "$STOPPED" ]; then
     if echo "$REPOS" | grep -q "docker-wheezy-php55:fpm56"; then
       TYPE_MYSQL="-v $WORKDIR/mysql/${TYPE}103.cnf:/etc/mysql/mariadb.cnf"
     fi
-    ISMARIADB103=$(docker images --format={{.Repository}}:{{.ID}} | grep netivism/docker-wheezy-php55 | grep "d18d2eb299a2")
+    ISMARIADB103=$(docker images --format={{.Repository}}:{{.ID}} | grep netivism/docker-wheezy-php55 | grep "3e4186c5ba88")
     if [ -n "$ISMARIADB103" ]; then
       TYPE_MYSQL="-v $WORKDIR/mysql/${TYPE}103.cnf:/etc/mysql/mariadb.cnf"
     fi
@@ -186,7 +186,7 @@ if [ -z "$STARTED" ] && [ -z "$STOPPED" ]; then
     if echo "$REPOS" | grep -q "docker-wheezy-php55:fpm56"; then
       TYPE_MYSQL="-v $WORKDIR/mysql/my103.cnf:/etc/mysql/mariadb.cnf"
     fi
-    ISMARIADB103=$(docker images --format={{.Repository}}:{{.ID}} | grep netivism/docker-wheezy-php55 | grep "d18d2eb299a2")
+    ISMARIADB103=$(docker images --format={{.Repository}}:{{.ID}} | grep netivism/docker-wheezy-php55 | grep "3e4186c5ba88")
     if [ -n "$ISMARIADB103" ]; then
       TYPE_MYSQL="-v $WORKDIR/mysql/${TYPE}103.cnf:/etc/mysql/mariadb.cnf"
     fi
