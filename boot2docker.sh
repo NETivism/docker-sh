@@ -4,23 +4,27 @@ WORKDIR=`dirname $REALPATH`
 MOUNTDIR=$WORKDIR
 
 if [ -z "$1" ]; then
-  echo -e "Usage:\n  $0 [domain] [email] [script] [repository]"
-  echo -e "\nExample:\n  $0 test.org mail@mail.com neticrm-7.sh netivism/docker-debian-php:develop"
+  echo -e "Usage:\n  $0 [domain] [email] [script] [repository] [mntdir]"
+  echo -e "\nExample:\n  $0 test.org mail@mail.com neticrm-7.sh netivism/docker-debian-php:develop 9"
   echo -e "\nError:"
   echo -e "  Required domain name."
   exit 1
 fi
 if [ -z "$2" ]; then
-  echo -e "Usage:\n  $0 [domain] [email] [script] [repository]"
-  echo -e "\nExample:\n  $0 test.org mail@mail.com neticrm-7.sh netivism/docker-debian-php:develop"
+  echo -e "Usage:\n  $0 [domain] [email] [script] [repository] [mntdir]"
+  echo -e "\nExample:\n  $0 test.org mail@mail.com neticrm-7.sh netivism/docker-debian-php:develop 9"
   echo -e "\nError:"
   echo -e "  Required email"
   exit 1
 fi
 
 RESULT=0
-if [ ! -d "$MOUNTDIR/neticrm-7" ]; then
-  mkdir -p $MOUNTDIR/neticrm-7
+MNTDIR="7"
+if [ -n "$2" ]; then
+  MNTDIR=$5
+fi
+if [ ! -d "$MOUNTDIR/neticrm-$MNTDIR" ]; then
+  mkdir -p $MOUNTDIR/neticrm-$MNTDIR
   RESULT=$?
 fi
 if [ ! -d "$MOUNTDIR/www/sites/$1/log/supervisor" ]; then
@@ -86,8 +90,8 @@ else
 fi
 
 
-cd $MOUNTDIR/neticrm-7
-if [ ! -d "$MOUNTDIR/neticrm-7/civicrm" ]; then
+cd $MOUNTDIR/neticrm-$MNTDIR
+if [ ! -d "$MOUNTDIR/neticrm-$MNTDIR/civicrm" ]; then
   RESULT=0
   git clone -b develop https://github.com/NETivism/netiCRM.git civicrm
   cd civicrm
@@ -137,7 +141,7 @@ if [ -n "$WWWPORT" ] && [ -n "$DBPORT" ]; then
   -v $MOUNTDIR/sql/sites/$1:/var/lib/mysql \
   -v /etc/localtime:/etc/localtime:ro \
   -v $SCRIPT:/init.sh \
-  -v $MOUNTDIR/neticrm-7:/mnt/neticrm-7 \
+  -v $MOUNTDIR/neticrm-$MNTDIR:/mnt/neticrm-$MNTDIR \
   -e INIT_DB=develop \
   -e INIT_PASSWD=123456 \
   -e INIT_DOMAIN=$1 \
