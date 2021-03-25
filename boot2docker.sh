@@ -105,7 +105,9 @@ if [ ! -d "$MOUNTDIR/neticrm-$MNTDIR/civicrm" ]; then
     exit 1
   fi
 fi
-
+if [ ! -L "/mnt/neticrm-$MNTDIR" ]; then
+  cd /mnt && ln -s "$MOUNTDIR/neticrm-$MNTDIR"
+fi
 if [ -n "$3" ] && [ -f "$WORKDIR/container/$3" ]; then
   SCRIPT="$WORKDIR/container/$3"
 else
