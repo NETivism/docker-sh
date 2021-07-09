@@ -52,7 +52,7 @@ MYSQL_ACCESS=$?
 DB_EXISTS=`mysql -uroot -sN -e "SHOW databases" | grep $DB`
 
 if [ $MYSQL_ACCESS -eq 0 ] && [ -z "$DB_EXISTS" ] && [ -n "$DB" ]; then
-  mysql -uroot -e "CREATE DATABASE $DB CHARACTER SET utf8 COLLATE utf8_general_ci;"
+  mysql -uroot -e "CREATE DATABASE $DB CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;"
   mysql -uroot -e "CREATE USER '$DB'@'%' IDENTIFIED BY '$PW';"
   mysql -uroot -e "CREATE USER '$DB'@'localhost' IDENTIFIED BY '$PW';"
   mysql -uroot -e "GRANT ALL PRIVILEGES ON $DB.* TO '$DB'@'%' WITH GRANT OPTION;"

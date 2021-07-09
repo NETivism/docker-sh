@@ -87,7 +87,7 @@ function create_demo() {
 }
 
 if [ -z "$DB_EXISTS" ] && [ -n "$DB" ]; then
-  mysql -uroot -e "CREATE DATABASE $DB CHARACTER SET utf8 COLLATE utf8_general_ci;"
+  mysql -uroot -e "CREATE DATABASE $DB CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;"
   mysql -uroot -e "CREATE USER '$DB'@'%' IDENTIFIED BY '$PW';"
   mysql -uroot -e "CREATE USER '$DB'@'localhost' IDENTIFIED BY '$PW';"
   mysql -uroot -e "GRANT ALL PRIVILEGES ON $DB.* TO '$DB'@'%' WITH GRANT OPTION;"
