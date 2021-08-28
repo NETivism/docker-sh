@@ -140,6 +140,11 @@ expire_logs_days	= 10
 innodb_file_per_table = true
 innodb_log_file_size = 128M
 
+# this article show how this setting effect double page cache in linux system
+# remove default fsync, use O_DIRECT. Mariadb 10.6 also set this to default
+# https://fromdual.com/who-else-is-using-my-memory-file-system-cache-analysis
+innodb_flush_method = O_DIRECT
+
 # utf8mb4 now is default, deprecate this setting or it will fail on start
 #innodb_large_prefix = true
 #innodb_file_format = barracuda
