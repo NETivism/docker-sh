@@ -56,7 +56,7 @@ sql_mode = ""
 
 # This replaces the startup script and checks MyISAM tables if needed
 # the first time they are touched
-myisam-recover         = BACKUP
+myisam-recover-options = BACKUP
 
 #
 # Instead of skip-networking the default is now to listen only on
@@ -66,29 +66,33 @@ myisam-recover         = BACKUP
 # * Fine Tuning
 #
 
-# global 
-# /etc/my.cnf:
-innodb_buffer_pool_size=32M
-innodb_log_buffer_size=3M
-query_cache_size=4M
-max_connections=15
-key_buffer_size=8
-thread_cache_size=0
-innodb_open_files=2000
+# global - 100MB
+innodb_buffer_pool_size=48MB
+innodb_log_buffer_size=3MB
+key_buffer_size=4MB
+aria_pagecache_buffer_size=1MB
+query_cache_size=4MB
+tmp_table_size=40M
+max_heap_table_size=40M
 
 # per thread or per operation settings
+max_connections=15
+sort_buffer_size=2MB
+read_buffer_size=2MB
+read_rnd_buffer_size=128K
+join_buffer_size=2MB
 thread_stack=131072
-sort_buffer_size=2M
-read_buffer_size=8200
-read_rnd_buffer_size=8200
-join_buffer_size=128
-net_buffer_length=1K
-max_heap_table_size=32M # Site wild memory base table
-tmp_table_size=32M # CRM use tmp table very often
-bulk_insert_buffer_size=0
+binlog_cache_size=32768
 max_allowed_packet=32MB
 
+# cache
+query_cache_type=1
+query_cache_limit=256K
+thread_cache_size=0
+net_buffer_length=1K
+bulk_insert_buffer_size=0
 group_concat_max_len=65535
+innodb_open_files=2000
 
 #
 # * Query Cache Configuration
@@ -147,13 +151,13 @@ innodb_flush_method = O_DIRECT_NO_FSYNC
 
 # utf8mb4 now is default, deprecate this setting or it will fail on start
 #innodb_large_prefix = true
-#innodb_file_format = barracuda
+#innodb_file_format = barracuda 
 #innodb_file_format_max = Barracuda
 
 [mysqldump]
 quick
 quote-names
-max_allowed_packet	= 16M
+max_allowed_packet	= 64M
 
 [mysql]
 #no-auto-rehash	# faster start of mysql but no tab completition
