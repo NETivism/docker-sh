@@ -9,7 +9,7 @@ DB=$INIT_DB
 PW=$INIT_PASSWD
 DOMAIN=$INIT_DOMAIN
 BASE="/var/www"
-DRUPAL="7.80"
+DRUPAL="7.84"
 SITE=$INIT_NAME
 MAIL="mis@netivism.com.tw"
 
