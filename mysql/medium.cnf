@@ -52,6 +52,7 @@ datadir		= /var/lib/mysql
 tmpdir		= /tmp
 language	= /usr/share/mysql/english
 skip-external-locking
+sql_mode = ""
 
 # This replaces the startup script and checks MyISAM tables if needed
 # the first time they are touched
@@ -140,9 +141,9 @@ innodb_file_per_table = true
 innodb_log_file_size = 128M
 
 # utf8mb4
-innodb_large_prefix = true
-innodb_file_format = barracuda
-innodb_file_format_max = Barracuda
+#innodb_large_prefix = true
+#innodb_file_format = barracuda
+#innodb_file_format_max = Barracuda
 
 [mysqldump]
 quick
