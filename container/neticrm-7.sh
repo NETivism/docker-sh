@@ -9,7 +9,7 @@ DB=$INIT_DB
 PW=$INIT_PASSWD
 DOMAIN=$INIT_DOMAIN
 BASE="/var/www"
-DRUPAL="7.84"
+DRUPAL="7.90"
 SITE=$INIT_NAME
 MAIL=$INIT_MAIL
 HOST_MAIL=$HOST_MAIL
@@ -123,7 +123,14 @@ EOT
   cd $BASE/html
   php ~/.composer/vendor/bin/drush.php site-install neticrmp --account-mail="${HOST_MAIL}" --account-name=admin --db-url=mysql://${DB}:${PW}@localhost/${DB} --site-mail=${MAIL} --site-name="${SITE}" --locale=zh-hant --yes
 
-  cd $BASE && chown -R www-data:www-data html
+  cd $BASE/html && find . -type f | xargs chmod 644
+  cd $BASE/html && find . -type d | xargs chmod 755
+  cd $BASE && chown -R www-data:www-data html/sites/default/files
+  cd $BASE && chown www-data:www-data html/sites/default/*.php
+  cd $BASE && chmod g+w html/sites/default/files
+  cd $BASE && chmod 440 html/sites/default/civicrm.settings.php
+  cd $BASE && chmod 440 html/sites/default/settings.php
+
   echo "Done!"
 else
   echo "Skip exist $DB, root password already setup before."
