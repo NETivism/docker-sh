@@ -9,7 +9,7 @@ DB=$INIT_DB
 PW=$INIT_PASSWD
 DOMAIN=$INIT_DOMAIN
 BASE="/var/www"
-DRUPAL="7.84"
+DRUPAL="7.90"
 SITE=$INIT_NAME
 MAIL=$INIT_MAIL
 HOST_MAIL=$HOST_MAIL
@@ -22,7 +22,6 @@ if [ ! -d /var/www/html/log ]; then
   mkdir /var/www/html/log
   chown root /var/www/html/log
 fi
-chgrp -R www-data $BASE/html/log && chmod -R g+ws $BASE/html/log
 if [ -f /var/www/html/log/php.ini ]; then
   if [ -d /etc/php5/fpm/conf.d ]; then
     cd /etc/php5/fpm/conf.d && ln -s /var/www/html/log/php.ini xx-php.ini
@@ -110,7 +109,16 @@ EOT
   cd $BASE/html
   php ~/.composer/vendor/bin/drush.php site-install standard --account-mail="${HOST_MAIL}" --account-name=admin --db-url=mysql://${DB}:${PW}@localhost/${DB} --site-mail=${MAIL} --site-name="${SITE}" --locale=zh-hant --yes
 
-  cd $BASE && chown -R www-data:www-data html
+  # drupal dirs and files
+  cd $BASE/html && find . -type d | xargs chmod 755
+  chown -R www-data:www-data $BASE/html/sites/default/files
+  chown www-data:www-data $BASE/html/sites/default/*.php
+  chmod 440 $BASE/html/sites/default/civicrm.settings.php
+  chmod 440 $BASE/html/sites/default/settings.php
+
+  # log dirs and files
+  chgrp -R www-data $BASE/html/log
+  chmod -R g+w $BASE/html/log
   echo "Done!"
 else
   echo "Skip exist $DB, root password already setup before."
