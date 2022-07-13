@@ -123,7 +123,6 @@ EOT
   cd $BASE/html
   php ~/.composer/vendor/bin/drush.php site-install neticrmp --account-mail="${HOST_MAIL}" --account-name=admin --db-url=mysql://${DB}:${PW}@localhost/${DB} --site-mail=${MAIL} --site-name="${SITE}" --locale=zh-hant --yes
 
-  cd $BASE/html && find . -type f | xargs chmod 644
   cd $BASE/html && find . -type d | xargs chmod 755
   cd $BASE && chown -R www-data:www-data html/sites/default/files
   cd $BASE && chown www-data:www-data html/sites/default/*.php
