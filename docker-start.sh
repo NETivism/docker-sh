@@ -18,10 +18,10 @@ Usage: ${0##*/} -d DOMAIN -w PORT_WWW -m PORT_DB -r hub/repository [-v MOUNT] [-
     -f FORCE    Optional. Force start again even exists. Will kill docker and restart again 
     -D DEBUG    Optional, will enable debug mode, port will not bind to 127.0.0.1
 
-Help: 
+Help:
   Container started, this will exec and enter docker base on -d
   Container stopped, this will start again base on -d
-    docker-start.sh -d test.com    
+    docker-start.sh -d test.com
 
   Container not exists, this will install(docker run) container:
     docker-start.sh -d test.com -w 10001 -m 30001 -r hub/repository
@@ -154,6 +154,7 @@ if [ -z "$STARTED" ] && [ -z "$STOPPED" ]; then
   # make sure we have log dir
   mkdir -p /var/www/sites/$DOMAIN/log/supervisor
   mkdir -p /var/mysql/sites/$DOMAIN
+  mkdir -p /var/temp/sites/$DOMAIN
   if [ -n "$SCRIPT" ]; then
     if [ -f "$WORKDIR/container/$SCRIPT" ]; then
       INIT_SCRIPT="$WORKDIR/container/$SCRIPT"
@@ -220,6 +221,7 @@ if [ -z "$STARTED" ] && [ -z "$STOPPED" ]; then
              -p ${BIND}$PORT_DB:3306 \
              -v /var/www/sites/$DOMAIN:/var/www/html \
              -v /var/mysql/sites/$DOMAIN:/var/lib/mysql \
+             -v /var/temp/sites/$DOMAIN:/tmp \
              -v /etc/localtime:/etc/localtime:ro \
              -v $INIT_SCRIPT:/init.sh \
              $TYPE_MYSQL \
