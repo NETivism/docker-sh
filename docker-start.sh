@@ -155,6 +155,7 @@ if [ -z "$STARTED" ] && [ -z "$STOPPED" ]; then
   mkdir -p /var/www/sites/$DOMAIN/log/supervisor
   mkdir -p /var/mysql/sites/$DOMAIN
   mkdir -p /var/temp/sites/$DOMAIN
+  chmod 777 /var/temp/sites/$DOMAIN
   if [ -n "$SCRIPT" ]; then
     if [ -f "$WORKDIR/container/$SCRIPT" ]; then
       INIT_SCRIPT="$WORKDIR/container/$SCRIPT"
