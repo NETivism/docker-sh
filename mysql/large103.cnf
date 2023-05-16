@@ -157,11 +157,10 @@ innodb_flush_method = O_DIRECT_NO_FSYNC
 [mysqldump]
 quick
 quote-names
-max_allowed_packet	= 64M
+max_allowed_packet = 128M
 
 [mariabackup]
 open_files_limit = 65535
-max_allowed_packet = 128M
 
 [mysql]
 #no-auto-rehash	# faster start of mysql but no tab completition
