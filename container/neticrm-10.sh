@@ -71,8 +71,20 @@ if [ $MYSQL_ACCESS -eq 0 ] && [ -z "$DB_EXISTS" ] && [ -n "$DB" ]; then
     tar -zxf drupal.tar.gz -C html --strip-components=1
     rm -Rf drupal.tar.gz
     cd $BASE/html
+
+    # update to latest drupal
     composer update "drupal/core-*" --with-all-dependencies
     composer require drush/drush
+
+    # third party requirement put here
+    ## tfa
+    composer require christian-riesen/otp
+    composer require chillerlan/php-qrcode
+    composer require defuse/php-encryption
+
+    if [ -d $BASE/html/sites/default ]; then
+      dd if=/dev/urandom bs=32 count=1 | base64 -i - > /var/www/html/sites/default/tfa.config
+    fi
   fi
   if [ ! -h "$BASE/html/profiles/neticrmp" ]; then
     cd $BASE/html/profiles && ln -s /mnt/neticrm-10/neticrmp neticrmp
