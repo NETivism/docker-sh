@@ -76,6 +76,9 @@ if [ $MYSQL_ACCESS -eq 0 ] && [ -z "$DB_EXISTS" ] && [ -n "$DB" ]; then
     composer update "drupal/core-*" --with-all-dependencies
     composer require drush/drush
 
+    # require phpmailer
+    composer require phpmailer/phpmailer
+
     # third party requirement put here
     ## tfa
     composer require christian-riesen/otp
