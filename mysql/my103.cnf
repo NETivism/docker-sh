@@ -154,6 +154,9 @@ innodb_flush_method = O_DIRECT_NO_FSYNC
 #innodb_file_format = barracuda
 #innodb_file_format_max = Barracuda
 
+transaction_isolation=READ-COMMITTED
+innodb_print_all_deadlocks=1
+
 [mysqldump]
 quick
 quote-names
