@@ -125,6 +125,7 @@ if [ $MYSQL_ACCESS -eq 0 ] && [ -z "$DB_EXISTS" ] && [ -n "$DB" ]; then
   # log dirs and files
   chgrp -R www-data $BASE/html/log
   chmod -R g+w $BASE/html/log
+  cd $BASE/html && drush cr
   echo "Done!"
 else
   echo "Skip exist $DB, root password already setup before."
