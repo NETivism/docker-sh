@@ -1,0 +1,8 @@
+/var/www/html/cache/
+/mnt/*/packages/tcpdf/
+/mnt/*/packages/ezc/
+/mnt/*/packages/PHP/
+/mnt/*/packages/PEAR/*
+/mnt/*/packages/recaptcha/
+/mnt/*/packages/Auth/
+/mnt/*/packages/Date/
