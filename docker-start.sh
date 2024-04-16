@@ -193,7 +193,7 @@ if [ -z "$STARTED" ] && [ -z "$STOPPED" ]; then
     TYPE_PHP="" # default alredy include when docker build
   fi
   if [ -f $WORKDIR/php/${TYPE}_opcache_blacklist ]; then
-    TYPE_PHP_BLACKLIST="-v $WORKDIR/php/${TYPE}_opcache_blacklist:/etc/php5/opcache_blacklist"
+    TYPE_PHP_BLACKLIST="-v $WORKDIR/php/${TYPE}_opcache_blacklist:/etc/php/opcache_blacklist"
   else
     TYPE_PHP_BLACKLIST="" # default alredy include when docker build
   fi
