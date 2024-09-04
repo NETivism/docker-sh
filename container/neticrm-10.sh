@@ -9,7 +9,7 @@ DB=$INIT_DB
 PW=$INIT_PASSWD
 DOMAIN=$INIT_DOMAIN
 BASE="/var/www"
-DRUPAL="10.1.6"
+DRUPAL="10.3.2"
 SITE=$INIT_NAME
 MAIL=$INIT_MAIL
 HOST_MAIL=$HOST_MAIL
@@ -67,7 +67,7 @@ if [ $MYSQL_ACCESS -eq 0 ] && [ -z "$DB_EXISTS" ] && [ -n "$DB" ]; then
     date +"@ %Y-%m-%d %H:%M:%S %z"
     echo "Install Drupal ..."
     cd $BASE
-    wget https://www.drupal.org/download-latest/tar.gz -O drupal.tar.gz
+    wget https://ftp.drupal.org/files/projects/drupal-${DRUPAL}.tar.gz -O drupal.tar.gz
     tar -zxf drupal.tar.gz -C html --strip-components=1
     rm -Rf drupal.tar.gz
     cd $BASE/html
