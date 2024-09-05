@@ -10,6 +10,11 @@ PW=$INIT_PASSWD
 DOMAIN=$INIT_DOMAIN
 BASE="/var/www"
 DRUPAL="10.3.2"
+LATEST_VERSION=$(curl -s "https://www.drupal.org/node/3060/release/feed?version=$VERSION_PREFIX" | grep '<title>drupal' | grep -v 'alpha\|beta\|dev' | head -1 | sed 's/[^0-9.]*//g' | tr -d '\n')
+if [ -n "$LATEST_VERSION" ] && [ "${LATEST_VERSION:0:2}" = "10" ]; then
+  DRUPAL=$LATEST_VERSION;
+fi
+
 SITE=$INIT_NAME
 MAIL=$INIT_MAIL
 HOST_MAIL=$HOST_MAIL
@@ -59,7 +64,7 @@ if [ $MYSQL_ACCESS -eq 0 ] && [ -z "$DB_EXISTS" ] && [ -n "$DB" ]; then
   echo "MYSQL_PW=$PW"
 
   if [ -f "$BASE/html/index.php" ]; then
-    DRUPAL_EXISTS=`cat $BASE/html/index.php | grep drupal`
+    DRUPAL_EXISTS=`cat $BASE/html/index.php | grep Drupal`
   else
     DRUPAL_EXISTS=""
   fi
