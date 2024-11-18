@@ -115,4 +115,11 @@ if [ $MYSQL_ACCESS -eq 0 ] && [ -z "$DB_EXISTS" ] && [ -n "$DB" ]; then
 else
   echo "Skip exist $DB, root password already setup before."
 fi
+
+#42010, install ffmpeg
+if [ $(dpkg -l | grep "^ii.*ffmpeg" | wc -l) -eq 0 ]; then
+  apt-get update > /dev/null 2>&1
+  DEBIAN_FRONTEND=noninteractive apt-get install -y ffmpeg > /dev/null 2>&1
+fi
+
 date +"@ %Y-%m-%d %H:%M:%S %z"
