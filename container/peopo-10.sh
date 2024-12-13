@@ -30,6 +30,11 @@ fi
 #allowed more www user visit
 if [[ "$TranscoderID" == www* ]]; then
   sed -i 's/pm\.max_children = 8/pm.max_children = 16/g' /etc/php/8.2/fpm/pool.d/www.conf
+  cat > /etc/php/8.2/fpm/conf.d/x_peopo_custom.ini << EOF
+memory_limit = 512M
+opcache.memory_consumption = 512
+opcache.jit_buffer_size = 256M
+EOF
 fi
 
 sleep 3
