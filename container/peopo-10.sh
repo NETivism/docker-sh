@@ -13,7 +13,7 @@ composer require drush/drush
 #42010, install ffmpeg
 if [ $(dpkg -l | grep "^ii.*ffmpeg" | wc -l) -eq 0 ]; then
   apt-get update > /dev/null 2>&1
-  DEBIAN_FRONTEND=noninteractive apt-get install -y ffmpeg
+  DEBIAN_FRONTEND=noninteractive apt-get install -y ffmpeg php8.2-memcache
 fi
 
 #upload video support
