@@ -79,6 +79,9 @@ if [ $MYSQL_ACCESS -eq 0 ] && [ -z "$DB_EXISTS" ] && [ -n "$DB" ]; then
 
     # update to latest drupal
     composer update "drupal/core-*" --with-all-dependencies
+
+    # correct drush installation
+    composer global require drush/drush:dev-master --with-all-dependencies
     composer require drush/drush
 
     # require phpmailer
