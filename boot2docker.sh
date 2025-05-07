@@ -95,19 +95,19 @@ if [ ! -d "$MOUNTDIR/neticrm-$MNTDIR/civicrm" ]; then
   RESULT=0
   git clone -b develop https://github.com/NETivism/netiCRM.git civicrm
   cd civicrm
-  git clone -b 7.x-develop https://github.com/NETivism/netiCRM-neticrm neticrm
-  git clone -b 7.x-develop https://github.com/NETivism/netiCRM-drupal drupal
+  git clone -b $MNTDIR.x-develop https://github.com/NETivism/netiCRM-neticrm neticrm
+  git clone -b $MNTDIR.x-develop https://github.com/NETivism/netiCRM-drupal drupal
   RESULT=$?
   cd ..
-  if [ $RESULT -neq 0 ]; then
+  if [ "$RESULT" -ne 0 ]; then
     echo -e "Error: clone civicrm project failed, abort."
     exit 1
   fi
 fi
 if [ ! -d "$MOUNTDIR/neticrm-$MNTDIR/neticrmp" ]; then
-  git clone -b 7.x-develop git@git.netivism.com.tw:netivism/neticrmp.git neticrmp
+  git clone -b $MNTDIR.x-develop git@git.netivism.com.tw:netivism/neticrmp.git neticrmp
   RESULT=$?
-  if [ $RESULT -neq 0 ]; then
+  if [ "$RESULT" -ne 0 ]; then
     echo -e "Error: clone neticrmp project failed, abort."
     exit 1
   fi
