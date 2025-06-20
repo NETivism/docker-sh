@@ -19,8 +19,8 @@ fi
 #upload video support
 if [[ "$TranscoderID" == load* ]]; then
   cat > /etc/php/8.2/fpm/conf.d/x_peopo_custom.ini << EOF
-upload_max_filesize = 2G
-post_max_size = 2G
+upload_max_filesize = 4G
+post_max_size = 4G
 memory_limit = 512M
 opcache.memory_consumption = 512
 opcache.jit_buffer_size = 256M
