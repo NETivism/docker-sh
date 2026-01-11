@@ -1,0 +1,41 @@
+services:
+  php-fpm:
+    image: rg.netivism.com.tw/netivism/docker-debian-php:develop
+    container_name: neticrm-php
+    restart: unless-stopped
+    working_dir: /var/www/html
+    environment:
+      INIT_DB: ${MYSQL_USER}
+      INIT_PASSWD: ${MYSQL_PASSWORD}
+      INIT_DOMAIN: ${DOMAIN}
+      SITE_NAME: ${INIT_NAME}
+      SITE_MAIL: ${INIT_MAIL}
+    volumes:
+      - ${NETICRM_BASE_PATH}:/mnt/neticrm-${NETICRM_VERSION}
+      - ./data/www:/var/www/html
+      - ./data/mysql:/var/lib/mysql
+      - ./container/${INIT_SCRIPT}.sh:/init.sh
+      - ./mysql/default103.cnf:/etc/mysql/my.cnf
+      - ./php/default83.ini:/etc/php/8.3/docker_setup.ini
+      - ./php/default_opcache_blacklist:/etc/php/opcache_blacklist
+      - ./php/develop.ini:/etc/php/8.3/fpm/conf.d/x-develop.ini
+    networks:
+      - neticrm_network
+
+  nginx:
+    image: nginx:stable
+    container_name: neticrm-nginx
+    restart: always
+    ports:
+      - "${HTTP_BIND:-0.0.0.0}:${HTTP_PORT}:80"
+    volumes:
+      - ./data/www:/var/www/html:ro
+      - ./container/nginx/conf.d:/etc/nginx/conf.d
+    depends_on:
+      - php-fpm
+    networks:
+      - neticrm_network
+
+networks:
+  neticrm_network:
+    driver: bridge
