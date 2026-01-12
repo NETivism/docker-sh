@@ -1,7 +1,7 @@
 services:
-  php-fpm:
+  neticrm-php-fpm:
     image: rg.netivism.com.tw/netivism/docker-debian-php:develop
-    container_name: neticrm-php
+    container_name: ${INIT_DOMAIN}-php
     restart: unless-stopped
     working_dir: /var/www/html
     environment:
@@ -23,9 +23,9 @@ services:
     networks:
       - neticrm_network
 
-  nginx:
+  neticrm-nginx:
     image: nginx:stable
-    container_name: neticrm-nginx
+    container_name: ${INIT_DOMAIN}-nginx
     restart: always
     ports:
       - "${HTTP_BIND:-0.0.0.0}:${HTTP_PORT}:80"
@@ -33,7 +33,7 @@ services:
       - ./data/www:/var/www/html:ro
       - ./nginx/conf.d:/etc/nginx/conf.d
     depends_on:
-      - php-fpm
+      - neticrm-php-fpm
     networks:
       - neticrm_network
 

@@ -81,8 +81,17 @@ if [ $MYSQL_ACCESS -eq 0 ] && [ -z "$DB_EXISTS" ] && [ -n "$DB" ]; then
     composer update "drupal/core-*" --with-all-dependencies
 
     # correct drush installation
-    composer global require drush/drush:dev-master --with-all-dependencies
+    composer global remove drush/drush
+    cd $BASE/html
     composer require drush/drush
+
+    # add drush to PATH in bash.bashrc for future sessions
+    if ! grep -q "/var/www/html/vendor/bin" /etc/bash.bashrc; then
+      echo 'export PATH="/var/www/html/vendor/bin:$PATH"' >> /etc/bash.bashrc
+    fi
+
+    # set PATH for current script execution
+    export PATH="/var/www/html/vendor/bin:$PATH"
 
     # require phpmailer
     composer require phpmailer/phpmailer
