@@ -76,7 +76,7 @@ The initialization script will automatically:
 Watch the logs to monitor the installation progress:
 
 ```sh
-docker compose logs -f php-fpm
+docker compose logs -f neticrm-php-fpm
 ```
 
 The installation may take several minutes. Wait for the "Done!" message.
@@ -92,7 +92,7 @@ Open your web browser and navigate to:
 Generate a one-time login link using drush:
 
 ```sh
-docker exec -it neticrm-php bash -c 'drush -l $INIT_DOMAIN uli'
+docker compose exec neticrm-php-fpm bash -c 'drush -l $INIT_DOMAIN uli'
 ```
 
 This will output a URL that you can use to login as the admin user.
@@ -106,8 +106,8 @@ The default admin username is `admin` (hardcoded in the initialization script).
 docker compose logs -f
 
 # Specific service
-docker compose logs -f php-fpm
-docker compose logs -f nginx
+docker compose logs -f neticrm-php-fpm
+docker compose logs -f neticrm-nginx
 ```
 
 ### Restart services
@@ -119,20 +119,20 @@ docker compose restart
 ### Access the PHP container shell
 
 ```sh
-docker exec -it neticrm-php bash
+docker compose exec neticrm-php-fpm bash
 ```
 
 ### Run Drush commands
 
 ```sh
 # Clear cache
-docker exec -it neticrm-php bash -c 'cd /var/www/html && drush cr'
+docker compose exec neticrm-php-fpm bash -c 'cd /var/www/html && drush cr'
 
 # Check status
-docker exec -it neticrm-php bash -c 'cd /var/www/html && drush status'
+docker compose exec neticrm-php-fpm bash -c 'cd /var/www/html && drush status'
 
 # Generate one-time login link
-docker exec -it neticrm-php bash -c 'drush -l $INIT_DOMAIN uli'
+docker compose exec neticrm-php-fpm bash -c 'drush -l $INIT_DOMAIN uli'
 ```
 
 ## Troubleshooting
@@ -159,10 +159,12 @@ The container runs with specific user permissions. If you encounter permission e
 ## Architecture
 
 This setup uses:
-- **PHP-FPM container** (neticrm-php): Runs PHP 8.3 with required extensions
-- **Nginx container** (neticrm-nginx): Serves as the web server
+- **PHP-FPM container** (service: neticrm-php-fpm): Runs PHP 8.3 with required extensions
+- **Nginx container** (service: neticrm-nginx): Serves as the web server
 - **MySQL**: Runs inside the PHP-FPM container (managed by supervisord)
 - **Bridge network**: Allows containers to communicate
+
+Note: Container names are dynamically generated based on `INIT_DOMAIN` variable (e.g., `local.dev.localhost-php`). Use `docker compose` commands with service names for consistency.
 
 ## Data Persistence
 
