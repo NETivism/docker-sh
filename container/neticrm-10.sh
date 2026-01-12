@@ -9,7 +9,7 @@ DB=$INIT_DB
 PW=$INIT_PASSWD
 DOMAIN=$INIT_DOMAIN
 BASE="/var/www"
-DRUPAL="10.3.10"
+DRUPAL="10.6.2"
 LATEST_VERSION=$(curl -s "https://www.drupal.org/node/3060/release/feed?version=$VERSION_PREFIX" | grep '<title>drupal' | grep -v 'alpha\|beta\|dev\|-rc' | head -1 | sed 's/[^0-9.]*//g' | tr -d '\n')
 if [ -n "$LATEST_VERSION" ] && [ "${LATEST_VERSION:0:2}" = "10" ]; then
   DRUPAL=$LATEST_VERSION;
@@ -81,8 +81,17 @@ if [ $MYSQL_ACCESS -eq 0 ] && [ -z "$DB_EXISTS" ] && [ -n "$DB" ]; then
     composer update "drupal/core-*" --with-all-dependencies
 
     # correct drush installation
-    composer global require drush/drush:dev-master --with-all-dependencies
+    composer global remove drush/drush
+    cd $BASE/html
     composer require drush/drush
+
+    # add drush to PATH in bash.bashrc for future sessions
+    if ! grep -q "/var/www/html/vendor/bin" /etc/bash.bashrc; then
+      echo 'export PATH="/var/www/html/vendor/bin:$PATH"' >> /etc/bash.bashrc
+    fi
+
+    # set PATH for current script execution
+    export PATH="/var/www/html/vendor/bin:$PATH"
 
     # require phpmailer
     composer require phpmailer/phpmailer
