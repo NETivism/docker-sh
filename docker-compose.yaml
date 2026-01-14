@@ -30,6 +30,7 @@ services:
     ports:
       - "${HTTP_BIND:-0.0.0.0}:${HTTP_PORT}:80"
     volumes:
+      - ${NETICRM_BASE_PATH}:/mnt/neticrm-${NETICRM_VERSION}:ro
       - ./data/www:/var/www/html:ro
       - ./nginx/conf.d:/etc/nginx/conf.d
     depends_on:
