@@ -81,7 +81,8 @@ fi
 echo "重建 supervisor 資料夾..."
 sudo mkdir -p "${DATA_DIR}/www/log/supervisor"
 echo "" | sudo tee "${DATA_DIR}/www/log/supervisor/placeholder.txt" > /dev/null
-sudo chown -R $(id -u):$(id -g) "${DATA_DIR}/www/log/supervisor"
+# Fix ownership for entire log directory to allow container to write logs
+sudo chown -R $(id -u):$(id -g) "${DATA_DIR}/www/log"
 
 echo ""
 echo -e "${GREEN}================================${NC}"
