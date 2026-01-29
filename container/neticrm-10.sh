@@ -102,6 +102,13 @@ if [ $MYSQL_ACCESS -eq 0 ] && [ -z "$DB_EXISTS" ] && [ -n "$DB" ]; then
     composer require chillerlan/php-qrcode
     composer require defuse/php-encryption
 
+    # Install bootstrap_barrio theme
+    echo "Installing bootstrap_barrio theme..."
+    if ! composer require 'drupal/bootstrap_barrio:^5.5'; then
+      echo "Warning: Failed to install bootstrap_barrio. Theme setup will be skipped."
+      echo "You can manually install it later with: composer require 'drupal/bootstrap_barrio:^5.5'"
+    fi
+
     if [ -d $BASE/html/sites/default ]; then
       dd if=/dev/urandom bs=32 count=1 | base64 -i - > /var/www/html/sites/default/tfa.config
     fi
