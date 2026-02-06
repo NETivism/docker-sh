@@ -46,6 +46,10 @@ if [ -f /var/lib/mysql/mysql.cnf ] && [ -d /var/lib/mysql ]; then
   sleep 3
 fi
 
+## update composer
+curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+composer global remove drush/drush
+
 # init mysql
 DB_TEST=`mysql -uroot -sN -e "SHOW databases"`
 MYSQL_ACCESS=$?
@@ -81,7 +85,6 @@ if [ $MYSQL_ACCESS -eq 0 ] && [ -z "$DB_EXISTS" ] && [ -n "$DB" ]; then
     composer update "drupal/core-*" --with-all-dependencies
 
     # correct drush installation
-    composer global remove drush/drush
     cd $BASE/html
     composer require drush/drush
 
@@ -101,6 +104,13 @@ if [ $MYSQL_ACCESS -eq 0 ] && [ -z "$DB_EXISTS" ] && [ -n "$DB" ]; then
     composer require christian-riesen/otp
     composer require chillerlan/php-qrcode
     composer require defuse/php-encryption
+
+    # Install bootstrap_barrio theme
+    echo "Installing bootstrap_barrio theme..."
+    if ! composer require 'drupal/bootstrap_barrio:^5.5'; then
+      echo "Warning: Failed to install bootstrap_barrio. Theme setup will be skipped."
+      echo "You can manually install it later with: composer require 'drupal/bootstrap_barrio:^5.5'"
+    fi
 
     if [ -d $BASE/html/sites/default ]; then
       dd if=/dev/urandom bs=32 count=1 | base64 -i - > /var/www/html/sites/default/tfa.config

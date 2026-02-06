@@ -9,7 +9,7 @@ DB=$INIT_DB
 PW=$INIT_PASSWD
 DOMAIN=$INIT_DOMAIN
 BASE="/var/www"
-DRUPAL="7.100"
+DRUPAL="7.103"
 SITE=$INIT_NAME
 MAIL="mis@netivism.com.tw"
 
@@ -43,6 +43,12 @@ if [ -f /var/lib/mysql/mysql.cnf ] && [ -d /var/lib/mysql ]; then
   supervisorctl restart mysql
   sleep 3
 fi
+
+# correct drush installation
+## update composer
+curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+composer global remove drush/drush
+composer global require drush/drush:8.5.0 --no-security-blocking --no-audit
 
 # init mysql
 DB_EXISTS=`ls -1 /var/lib/mysql/ | grep $INIT_DB`
@@ -112,10 +118,10 @@ if [ -z "$DB_EXISTS" ] && [ -n "$DB" ]; then
     date +"@ %Y-%m-%d %H:%M:%S %z"
     echo "Install Drupal ..."
     cd $BASE
-    drush dl drupal-${DRUPAL}
-    mv $BASE/drupal-${DRUPAL}/* $BASE/html/
-    mv $BASE/drupal-${DRUPAL}/.htaccess $BASE/html/
-    rm -Rf $BASE/drupal-${DRUPAL}
+    wget https://ftp.drupal.org/files/projects/drupal-${DRUPAL}.tar.gz -O drupal.tar.gz
+    tar -zxf drupal.tar.gz -C html --strip-components=1
+    rm -Rf drupal.tar.gz
+    cd $BASE/html
   fi
   if [ ! -h "$BASE/html/profiles/neticrmp" ]; then
     cd $BASE/html/profiles && ln -s /mnt/neticrm-7/neticrmp neticrmp
