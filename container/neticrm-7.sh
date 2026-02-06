@@ -45,6 +45,12 @@ if [ -f /var/lib/mysql/mysql.cnf ] && [ -d /var/lib/mysql ]; then
   sleep 3
 fi
 
+# correct drush installation
+## update composer
+curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+composer global remove drush/drush
+composer global require drush/drush:8.5.0 --no-security-blocking --no-audit
+
 # init mysql
 DB_TEST=`mysql -uroot -sN -e "SHOW databases"`
 MYSQL_ACCESS=$?
@@ -61,7 +67,6 @@ if [ $MYSQL_ACCESS -eq 0 ] && [ -z "$DB_EXISTS" ] && [ -n "$DB" ]; then
   echo "MySQL initialize completed !!"
   echo "MYSQL_DB=$DB"
   echo "MYSQL_PW=$PW"
-
   if [ -f "$BASE/html/index.php" ]; then
     DRUPAL_EXISTS=`cat $BASE/html/index.php | grep drupal`
   else
@@ -75,12 +80,6 @@ if [ $MYSQL_ACCESS -eq 0 ] && [ -z "$DB_EXISTS" ] && [ -n "$DB" ]; then
     tar -zxf drupal.tar.gz -C html --strip-components=1
     rm -Rf drupal.tar.gz
     cd $BASE/html
-
-    # correct drush installation
-    ## update composer
-    curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
-    composer global remove drush/drush
-    composer global require drush/drush:8.5.0 --no-security-blocking --no-audit
   fi
   if [ ! -h "$BASE/html/profiles/neticrmp" ]; then
     cd $BASE/html/profiles && ln -s /mnt/neticrm-7/neticrmp neticrmp

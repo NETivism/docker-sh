@@ -9,7 +9,7 @@ DB=$INIT_DB
 PW=$INIT_PASSWD
 DOMAIN=$INIT_DOMAIN
 BASE="/var/www"
-DRUPAL="10.3.10"
+DRUPAL="10.6.2"
 LATEST_VERSION=$(curl -s "https://www.drupal.org/node/3060/release/feed?version=$VERSION_PREFIX" | grep '<title>drupal' | grep -v 'alpha\|beta\|dev\|-rc' | head -1 | sed 's/[^0-9.]*//g' | tr -d '\n')
 if [ -n "$LATEST_VERSION" ] && [ "${LATEST_VERSION:0:2}" = "10" ]; then
   DRUPAL=$LATEST_VERSION;
@@ -46,6 +46,10 @@ if [ -f /var/lib/mysql/mysql.cnf ] && [ -d /var/lib/mysql ]; then
   sleep 3
 fi
 
+## update composer
+curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+composer global remove drush/drush
+
 # init mysql
 DB_TEST=`mysql -uroot -sN -e "SHOW databases"`
 MYSQL_ACCESS=$?
@@ -62,6 +66,7 @@ if [ $MYSQL_ACCESS -eq 0 ] && [ -z "$DB_EXISTS" ] && [ -n "$DB" ]; then
   echo "MySQL initialize completed !!"
   echo "MYSQL_DB=$DB"
   echo "MYSQL_PW=$PW"
+
 
   if [ -f "$BASE/html/index.php" ]; then
     DRUPAL_EXISTS=`cat $BASE/html/index.php | grep Drupal`
@@ -81,7 +86,8 @@ if [ $MYSQL_ACCESS -eq 0 ] && [ -z "$DB_EXISTS" ] && [ -n "$DB" ]; then
     composer update "drupal/core-*" --with-all-dependencies
 
     # correct drush installation
-    composer global require drush/drush:dev-master --with-all-dependencies
+    composer global remove drush/drush
+    cd $BASE/html
     composer require drush/drush
 
     # require phpmailer
