@@ -88,11 +88,6 @@ if [ $MYSQL_ACCESS -eq 0 ] && [ -z "$DB_EXISTS" ] && [ -n "$DB" ]; then
     cd $BASE/html
     composer require drush/drush
 
-    # add drush to PATH in bash.bashrc for future sessions
-    if ! grep -q "/var/www/html/vendor/bin" /etc/bash.bashrc; then
-      echo 'export PATH="/var/www/html/vendor/bin:$PATH"' >> /etc/bash.bashrc
-    fi
-
     # set PATH for current script execution
     export PATH="/var/www/html/vendor/bin:$PATH"
 
@@ -137,6 +132,19 @@ if [ $MYSQL_ACCESS -eq 0 ] && [ -z "$DB_EXISTS" ] && [ -n "$DB" ]; then
   cd $BASE/html && drush cr
   echo "Done!"
 else
+  # set PATH for current script execution
+  export PATH="/var/www/html/vendor/bin:$PATH"
   echo "Skip exist $DB, root password already setup before."
 fi
+
+# add drush to PATH in bash.bashrc for future sessions
+if ! grep -q "/var/www/html/vendor/bin" /etc/bash.bashrc; then
+  echo 'export PATH="/var/www/html/vendor/bin:$PATH"' >> /etc/bash.bashrc
+fi
+
+# create symlink if drush exists
+if [ -f /var/www/html/vendor/bin/drush ] && [ ! -f /usr/local/bin/drush ]; then
+  ln -s /var/www/html/vendor/bin/drush /usr/local/bin/drush
+fi
+
 date +"@ %Y-%m-%d %H:%M:%S %z"

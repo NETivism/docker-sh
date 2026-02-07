@@ -75,8 +75,15 @@ function clear_demo() {
 function create_demo() {
   cd $BASE/html
 
-  # set PATH for current script execution
-  export PATH="/var/www/html/vendor/bin:$PATH"
+  # add drush to PATH in bash.bashrc for future sessions
+  if ! grep -q "/var/www/html/vendor/bin" /etc/bash.bashrc; then
+    echo 'export PATH="/var/www/html/vendor/bin:$PATH"' >> /etc/bash.bashrc
+  fi
+
+  # create symlink if drush exists
+  if [ -f /var/www/html/vendor/bin/drush ] && [ ! -f /usr/local/bin/drush ]; then
+    ln -s /var/www/html/vendor/bin/drush /usr/local/bin/drush
+  fi
 
   # Install site with demo data
   php -d sendmail_path=`which true` /var/www/html/vendor/bin/drush -vv --yes site-install neticrmp variables.civicrm_demo_sample_data=1 --account-mail="${MAIL}" --account-name=admin --account-pass="${PW}" --db-url=mysql://${DB}:${PW}@localhost/${DB} --site-mail=${MAIL} --site-name="${SITE}" --locale=zh-hant --yes
@@ -142,16 +149,6 @@ if [ -z "$DB_EXISTS" ] && [ $MYSQL_ACCESS -eq 0 ] && [ -n "$DB" ]; then
     cd $BASE/html
     composer require drush/drush
 
-    # add drush to PATH in bash.bashrc for future sessions
-    if ! grep -q "/var/www/html/vendor/bin" /etc/bash.bashrc; then
-      echo 'export PATH="/var/www/html/vendor/bin:$PATH"' >> /etc/bash.bashrc
-      cd /usr/local/bin && ln -s /var/www/html/vendor/bin/drush drush
-      cd $BASE/html
-    fi
-
-    # set PATH for current script execution
-    export PATH="/var/www/html/vendor/bin:$PATH"
-
     # require phpmailer
     composer require phpmailer/phpmailer
 
@@ -181,10 +178,6 @@ if [ -z "$DB_EXISTS" ] && [ $MYSQL_ACCESS -eq 0 ] && [ -n "$DB" ]; then
   if [ ! -h "$BASE/html/modules/civicrm" ]; then
     cd $BASE/html/modules && ln -s /mnt/neticrm-10/civicrm civicrm
   fi
-  # make sure drush have correct base_url
-  if [ ! -f "$BASE/html/sites/default/drushrc.php" ]; then
-    echo -e "<?php\n\$options['uri'] = 'http://$INIT_DOMAIN';\n\$options['php-notices'] = 'warning';" > $BASE/html/sites/default/drushrc.php;
-  fi
 
   if [ ! -d "$BASE/html/profiles/neticrmp" ]; then
     echo "Error: Profile not found. (missing neticrmp)"
@@ -208,6 +201,9 @@ elif [ -n "$DB_EXISTS" ]; then
   echo "Create new demo site"
   create_demo
 else
+  # set PATH for current script execution
+  export PATH="/var/www/html/vendor/bin:$PATH"
   echo "Skip exist $DB, root password already setup before."
 fi
+
 date +"@ %Y-%m-%d %H:%M:%S %z"
