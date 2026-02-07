@@ -91,6 +91,8 @@ if [ $MYSQL_ACCESS -eq 0 ] && [ -z "$DB_EXISTS" ] && [ -n "$DB" ]; then
     # add drush to PATH in bash.bashrc for future sessions
     if ! grep -q "/var/www/html/vendor/bin" /etc/bash.bashrc; then
       echo 'export PATH="/var/www/html/vendor/bin:$PATH"' >> /etc/bash.bashrc
+      cd /usr/local/bin && ln -s /var/www/html/vendor/bin/drush drush
+      cd $BASE/html
     fi
 
     # set PATH for current script execution
