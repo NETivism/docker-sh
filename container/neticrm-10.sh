@@ -3,7 +3,7 @@ date +"@ %Y-%m-%d %H:%M:%S %z"
 
 # wait for mysql start
 while ! pgrep -u mysql mysqld > /dev/null; do sleep 3; done
-sleep 10
+sleep $((1 + RANDOM % 3))
 
 DB=$INIT_DB
 PW=$INIT_PASSWD
