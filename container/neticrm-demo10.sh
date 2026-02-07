@@ -3,7 +3,7 @@ date +"@ %Y-%m-%d %H:%M:%S %z"
 
 # wait for mysql start
 while ! pgrep -u mysql mysqld > /dev/null; do sleep 3; done
-sleep 10
+sleep $((1 + RANDOM % 3))
 
 DB=$INIT_DB
 PW=$INIT_PASSWD
@@ -86,7 +86,7 @@ function create_demo() {
   fi
 
   # Install site with demo data
-  php -d sendmail_path=`which true` /var/www/html/vendor/bin/drush -vv --yes site-install neticrmp variables.civicrm_demo_sample_data=1 --account-mail="${MAIL}" --account-name=admin --account-pass="${PW}" --db-url=mysql://${DB}:${PW}@localhost/${DB} --site-mail=${MAIL} --site-name="${SITE}" --locale=zh-hant --yes
+  drush -vv --yes site-install neticrmp variables.civicrm_demo_sample_data=1 --account-mail="${MAIL}" --account-name=admin --account-pass="${PW}" --db-url=mysql://${DB}:${PW}@localhost/${DB} --site-mail=${MAIL} --site-name="${SITE}" --locale=zh-hant --yes
 
   # add mailing and additional settings
   echo "defined('VERSION') ? @include_once('/mnt/neticrm-'.substr(VERSION, 0, strpos(VERSION, '.')).'/global.inc') : @include_once('/mnt/neticrm-6/global.inc');" >> $BASE/html/sites/default/settings.php
@@ -97,12 +97,12 @@ function create_demo() {
   cd $BASE/html
 
   # Create demo users
-  drush user-create demo --password="demoneticrm" --mail="demo@netivism.com.tw"
-  drush user-add-role "網站總管" "demo"
-  drush user-create demouser --password="demoneticrm" --mail="demo+user@netivism.com.tw"
+  drush user:create demo --password="demoneticrm" --mail="demo@netivism.com.tw"
+  drush user:role:add site_manager demo
+  drush user:create demouser --password="demoneticrm" --mail="demo+user@netivism.com.tw"
 
-  # Set welcome message (using config set for Drupal 10)
-  drush config-set neticrm.settings welcome_message "歡迎您來到 netiCRM示範網站！本網站為測試用途，資料隨時清除，請勿留下個資以免外洩。測試帳號/密碼請用 demo / demoneticrm 登入。<br>如有任何問題，請至 <a href='https://neticrm.tw'>https://neticrm.tw</a> 與我們聯繫。" -y
+  # Set welcome message (using config:set for Drupal 10)
+  drush config:set neticrm_preset.site neticrm_welcome_message "歡迎您來到 netiCRM示範網站！本網站為測試用途，資料隨時清除，請勿留下個資以免外洩。測試帳號/密碼請用 demo / demoneticrm 登入。<br>如有任何問題，請至 <a href='https://neticrm.tw'>https://neticrm.tw</a> 與我們聯繫。" -y
 
   # drupal dirs and files
   cd $BASE/html && find . -type d | xargs chmod 755
@@ -114,6 +114,8 @@ function create_demo() {
   # log dirs and files
   chgrp -R www-data $BASE/html/log
   chmod -R g+w $BASE/html/log
+  cd $BASE/html && drush cr
+  echo "Done!"
 }
 
 if [ -z "$DB_EXISTS" ] && [ $MYSQL_ACCESS -eq 0 ] && [ -n "$DB" ]; then
