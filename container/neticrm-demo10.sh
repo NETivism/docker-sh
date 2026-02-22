@@ -86,7 +86,7 @@ function create_demo() {
   fi
 
   # Install site with demo data
-  drush -vv --yes site-install neticrmp variables.civicrm_demo_sample_data=1 --account-mail="${MAIL}" --account-name=admin --account-pass="${PW}" --db-url=mysql://${DB}:${PW}@localhost/${DB} --site-mail=${MAIL} --site-name="${SITE}" --locale=zh-hant --yes
+  drush -vv --yes site-install neticrmp neticrmp_install_form.civicrm_demo_sample_data=1 --account-mail="${MAIL}" --account-name=admin --account-pass="${PW}" --db-url=mysql://${DB}:${PW}@localhost/${DB} --site-mail=${MAIL} --site-name="${SITE}" --locale=zh-hant --yes
 
   # add mailing and additional settings
   echo "defined('VERSION') ? @include_once('/mnt/neticrm-'.substr(VERSION, 0, strpos(VERSION, '.')).'/global.inc') : @include_once('/mnt/neticrm-6/global.inc');" >> $BASE/html/sites/default/settings.php
