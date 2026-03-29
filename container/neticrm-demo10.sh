@@ -208,4 +208,12 @@ else
   echo "Skip exist $DB, root password already setup before."
 fi
 
+# ensure crm_readonly@localhost exists
+READONLY_EXISTS=`mysql -uroot -p$PW -sN -e "SELECT COUNT(*) FROM mysql.user WHERE user='crm_readonly' AND host='localhost'" 2>/dev/null`
+if [ "$READONLY_EXISTS" = "0" ]; then
+  mysql -uroot -p$PW -e "CREATE USER 'crm_readonly'@'localhost' IDENTIFIED BY '$PW';"
+  mysql -uroot -p$PW -e "FLUSH PRIVILEGES;"
+  echo "Created crm_readonly@localhost user."
+fi
+
 date +"@ %Y-%m-%d %H:%M:%S %z"
