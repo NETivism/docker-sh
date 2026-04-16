@@ -55,7 +55,18 @@ DB_EXISTS=`ls -1 /var/lib/mysql/ | grep $INIT_DB`
 
 function clear_demo() {
   # add clear.sql
-  echo "SET FOREIGN_KEY_CHECKS = 0; SET GROUP_CONCAT_MAX_LEN=32768; SET @tables = NULL; SELECT GROUP_CONCAT('\`', table_name, '\`') INTO @tables FROM information_schema.tables WHERE table_schema = (SELECT DATABASE()); SELECT IFNULL(@tables,'dummy') INTO @tables; SET @tables = CONCAT('DROP TABLE IF EXISTS ', @tables); PREPARE stmt FROM @tables; EXECUTE stmt; DEALLOCATE PREPARE stmt; SET FOREIGN_KEY_CHECKS = 1;" > /tmp/cleardb.sql
+  echo "SET FOREIGN_KEY_CHECKS = 0; SET GROUP_CONCAT_MAX_LEN=32768;
+SET @tables = NULL;
+SELECT GROUP_CONCAT('\`', table_name, '\`') INTO @tables FROM information_schema.tables WHERE table_schema = (SELECT DATABASE()) AND table_type = 'BASE TABLE';
+SET @tables = IF(@tables IS NOT NULL, CONCAT('DROP TABLE IF EXISTS ', @tables), 'SELECT 1');
+PREPARE stmt FROM @tables; EXECUTE stmt; DEALLOCATE PREPARE stmt;
+
+SET @views = NULL;
+SELECT GROUP_CONCAT('\`', table_name, '\`') INTO @views FROM information_schema.tables WHERE table_schema = (SELECT DATABASE()) AND table_type = 'VIEW';
+SET @views = IF(@views IS NOT NULL, CONCAT('DROP VIEW IF EXISTS ', @views), 'SELECT 1');
+PREPARE stmt FROM @views; EXECUTE stmt; DEALLOCATE PREPARE stmt;
+
+SET FOREIGN_KEY_CHECKS = 1;" > /tmp/cleardb.sql
   mysql -u$DB -p$PW $DB < /tmp/cleardb.sql
 
   if [ -f $BASE/html/sites/default/settings.php ]; then
@@ -80,9 +91,9 @@ function create_demo() {
 
   cd $BASE && chown -R www-data:www-data html
   cd $BASE/html
-  drush user-create demo --password="demoneticrm" --mail="demo@netivism.com.tw" 
+  drush user-create demo --password="demoneticrm" --mail="demo@netivism.com.tw"
   drush user-add-role "網站總管" "demo"
-  drush user-create demouser --password="demoneticrm" --mail="demo+user@netivism.com.tw" 
+  drush user-create demouser --password="demoneticrm" --mail="demo+user@netivism.com.tw"
   drush vset neticrm_welcome_message "歡迎您來到 netiCRM示範網站！本網站為測試用途，資料隨時清除，請勿留下個資以免外洩。測試帳號/密碼請用 demo / demoneticrm 登入。<br>如有任何問題，請至 <a href='https://neticrm.tw'>https://neticrm.tw</a> 與我們聯繫。"
 
   # drupal dirs and files
