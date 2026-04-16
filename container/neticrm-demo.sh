@@ -9,7 +9,7 @@ DB=$INIT_DB
 PW=$INIT_PASSWD
 DOMAIN=$INIT_DOMAIN
 BASE="/var/www"
-DRUPAL="7.103"
+DRUPAL="7.x"
 SITE=$INIT_NAME
 MAIL="mis@netivism.com.tw"
 
@@ -129,7 +129,7 @@ if [ -z "$DB_EXISTS" ] && [ -n "$DB" ]; then
     date +"@ %Y-%m-%d %H:%M:%S %z"
     echo "Install Drupal ..."
     cd $BASE
-    wget https://ftp.drupal.org/files/projects/drupal-${DRUPAL}.tar.gz -O drupal.tar.gz
+    wget https://github.com/NETivism/drupal/archive/refs/heads/${DRUPAL}.tar.gz -O drupal.tar.gz
     tar -zxf drupal.tar.gz -C html --strip-components=1
     rm -Rf drupal.tar.gz
     cd $BASE/html
