@@ -9,8 +9,8 @@ DB=$INIT_DB
 PW=$INIT_PASSWD
 DOMAIN=$INIT_DOMAIN
 BASE="/var/www"
-DRUPAL="10.6.3"
-LATEST_VERSION=$(curl -s "https://www.drupal.org/node/3060/release/feed?version=$VERSION_PREFIX" | grep '<title>drupal' | grep -v 'alpha\|beta\|dev\|-rc' | head -1 | sed 's/[^0-9.]*//g' | tr -d '\n')
+DRUPAL="10.6.8"
+LATEST_VERSION=$(curl -s "https://www.drupal.org/node/3060/release/feed" | grep -oE '<link>https://www\.drupal\.org/project/drupal/releases/[0-9]+\.[0-9]+\.[0-9]+</link>' | sed -E 's|<link>https://www\.drupal\.org/project/drupal/releases/([0-9]+\.[0-9]+\.[0-9]+)</link>|\1|' | grep "^${VERSION_PREFIX}\." | sort -V -r | head -1)
 if [ -n "$LATEST_VERSION" ] && [ "${LATEST_VERSION:0:2}" = "10" ]; then
   DRUPAL=$LATEST_VERSION;
 fi
