@@ -118,7 +118,18 @@ if [ $MYSQL_ACCESS -eq 0 ] && [ -z "$DB_EXISTS" ] && [ -n "$DB" ]; then
     drush dis l10n_update --yes \
     drush dis update --yes
 
-  cd $BASE && chown -R www-data:www-data html
+  # drupal dirs and files
+  chown root:root $BASE/html
+  chmod 755 $BASE/html
+  chown -R www-data:www-data $BASE/html/sites/default/files
+  chown www-data:www-data $BASE/html/sites/default/*.php
+  chown root:www-data $BASE/html/sites/default/civicrm.settings.php
+  chown root:www-data $BASE/html/sites/default/settings.php
+  chmod 440 $BASE/html/sites/default/civicrm.settings.php
+  chmod 440 $BASE/html/sites/default/settings.php
+  # keep the directory read-only, otherwise www-data can replace the settings
+  # files regardless of their own mode
+  chmod 555 $BASE/html/sites/default
   echo "Done!"
 else
   echo "Skip exist $DB, root password already setup before."

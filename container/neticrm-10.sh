@@ -109,6 +109,8 @@ if [ $MYSQL_ACCESS -eq 0 ] && [ -z "$DB_EXISTS" ] && [ -n "$DB" ]; then
 
     if [ -d $BASE/html/sites/default ]; then
       dd if=/dev/urandom bs=32 count=1 | base64 -i - > /var/www/html/sites/default/tfa.config
+      chown root:www-data /var/www/html/sites/default/tfa.config
+      chmod 440 /var/www/html/sites/default/tfa.config
     fi
     if [ ! -f $BASE/html/sites/default/services.yml ]; then
       echo -e "parameters:\n  session.storage.options:\n    gc_probability: 1\n    gc_divisor: 100\n    gc_maxlifetime: 48000\n    cookie_lifetime: 48000\n    cookie_samesite: Lax\n  twig.config:\n    debug: false\n    auto_reload: null\n    cache: true\n  filter_protocols:\n    - http\n    - https\n    - tel\n    - mailto\n    - webcal\n" > $BASE/html/sites/default/services.yml
@@ -138,11 +140,18 @@ if [ $MYSQL_ACCESS -eq 0 ] && [ -z "$DB_EXISTS" ] && [ -n "$DB" ]; then
   drush -vv --yes site-install neticrmp --account-mail="${HOST_MAIL}" --account-name=admin --db-url=mysql://${DB}:${PW}@localhost/${DB} --site-mail=${MAIL} --site-name="${SITE}" --locale=zh-hant --yes
 
   # drupal dirs and files
-  cd $BASE/html && find . -type d | xargs chmod 755
+  chown root:root $BASE/html
+  chmod 755 $BASE/html
+  cd $BASE/html && find . -type d -exec chmod 755 {} +
   chown -R www-data:www-data $BASE/html/sites/default/files
   chown www-data:www-data $BASE/html/sites/default/*.php
+  chown root:www-data $BASE/html/sites/default/civicrm.settings.php
+  chown root:www-data $BASE/html/sites/default/settings.php
   chmod 440 $BASE/html/sites/default/civicrm.settings.php
   chmod 440 $BASE/html/sites/default/settings.php
+  # keep the directory read-only, otherwise www-data can replace the settings
+  # files regardless of their own mode
+  chmod 555 $BASE/html/sites/default
 
   # log dirs and files
   chgrp -R www-data $BASE/html/log

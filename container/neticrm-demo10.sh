@@ -71,9 +71,10 @@ PREPARE stmt FROM @views; EXECUTE stmt; DEALLOCATE PREPARE stmt;
 SET FOREIGN_KEY_CHECKS = 1;" > /tmp/cleardb.sql
   mysql -u$DB -p$PW $DB < /tmp/cleardb.sql
 
+  # create_demo leaves sites/default read-only, reopen it before removing
+  chmod 755 $BASE/html/sites/default
   if [ -f $BASE/html/sites/default/settings.php ]; then
     rm -f $BASE/html/sites/default/settings.php
-    chmod 755 $BASE/html/sites/default
   fi
   if [ -f $BASE/html/sites/default/civicrm.settings.php ]; then
     rm -f $BASE/html/sites/default/civicrm.settings.php
@@ -104,7 +105,6 @@ function create_demo() {
   echo "if(is_file(dirname(__FILE__).'/smtp.settings.php')){ @include_once('smtp.settings.php'); }" >> $BASE/html/sites/default/settings.php
   echo "if(is_file(dirname(__FILE__).'/local.settings.php')){ @include_once('local.settings.php'); }" >> $BASE/html/sites/default/settings.php
 
-  cd $BASE && chown -R www-data:www-data html
   cd $BASE/html
 
   # Create demo users
@@ -116,11 +116,18 @@ function create_demo() {
   drush config:set neticrm_preset.site neticrm_welcome_message "歡迎您來到 netiCRM示範網站！本網站為測試用途，資料隨時清除，請勿留下個資以免外洩。測試帳號/密碼請用 demo / demoneticrm 登入。<br>如有任何問題，請至 <a href='https://neticrm.tw'>https://neticrm.tw</a> 與我們聯繫。" -y
 
   # drupal dirs and files
-  cd $BASE/html && find . -type d | xargs chmod 755
+  chown root:root $BASE/html
+  chmod 755 $BASE/html
+  cd $BASE/html && find . -type d -exec chmod 755 {} +
   chown -R www-data:www-data $BASE/html/sites/default/files
   chown www-data:www-data $BASE/html/sites/default/*.php
+  chown root:www-data $BASE/html/sites/default/civicrm.settings.php
+  chown root:www-data $BASE/html/sites/default/settings.php
   chmod 440 $BASE/html/sites/default/civicrm.settings.php
   chmod 440 $BASE/html/sites/default/settings.php
+  # keep the directory read-only, otherwise www-data can replace the settings
+  # files regardless of their own mode
+  chmod 555 $BASE/html/sites/default
 
   # log dirs and files
   chgrp -R www-data $BASE/html/log
@@ -180,6 +187,8 @@ if [ -z "$DB_EXISTS" ] && [ $MYSQL_ACCESS -eq 0 ] && [ -n "$DB" ]; then
 
     if [ -d $BASE/html/sites/default ]; then
       dd if=/dev/urandom bs=32 count=1 | base64 -i - > /var/www/html/sites/default/tfa.config
+      chown root:www-data /var/www/html/sites/default/tfa.config
+      chmod 440 /var/www/html/sites/default/tfa.config
     fi
     if [ ! -f $BASE/html/sites/default/services.yml ]; then
       echo -e "parameters:\n  session.storage.options:\n    gc_probability: 1\n    gc_divisor: 100\n    gc_maxlifetime: 48000\n    cookie_lifetime: 48000\n    cookie_samesite: Lax\n  twig.config:\n    debug: false\n    auto_reload: null\n    cache: true\n  filter_protocols:\n    - http\n    - https\n    - tel\n    - mailto\n    - webcal\n" > $BASE/html/sites/default/services.yml
