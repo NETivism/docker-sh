@@ -168,29 +168,31 @@ if [ -z "$STARTED" ] && [ -z "$STOPPED" ]; then
   fi
 
   # TYPE
-  if [ -f $WORKDIR/mysql/${TYPE}.cnf ]; then
-    TYPE_MYSQL="-v $WORKDIR/mysql/${TYPE}103.cnf:/etc/mysql/my.cnf"
-    if echo "$REPOS" | grep -q "docker-debian-php"; then
-      TYPE_MYSQL="-v $WORKDIR/mysql/${TYPE}103.cnf:/etc/mysql/mariadb.cnf"
-    fi
-    if echo "$REPOS" | grep -q "docker-wheezy-php55:fpm56"; then
-      TYPE_MYSQL="-v $WORKDIR/mysql/${TYPE}103.cnf:/etc/mysql/mariadb.cnf"
-    fi
+  if [ -n "$TYPE" ] && [ -f $WORKDIR/mysql/${TYPE}103.cnf ]; then
     TYPE_MYSQL="-v $WORKDIR/mysql/${TYPE}103.cnf:/etc/mysql/mariadb.cnf"
   else
-    TYPE_MYSQL="-v $WORKDIR/mysql/my103.cnf:/etc/mysql/my.cnf"
-    if echo "$REPOS" | grep -q "docker-debian-php"; then
-      TYPE_MYSQL="-v $WORKDIR/mysql/my103.cnf:/etc/mysql/mariadb.cnf"
-    fi
-    if echo "$REPOS" | grep -q "docker-wheezy-php55:fpm56"; then
-      TYPE_MYSQL="-v $WORKDIR/mysql/my103.cnf:/etc/mysql/mariadb.cnf"
-    fi
-    TYPE_MYSQL="-v $WORKDIR/mysql/${TYPE}103.cnf:/etc/mysql/mariadb.cnf"
+    TYPE_MYSQL="-v $WORKDIR/mysql/my103.cnf:/etc/mysql/mariadb.cnf"
   fi
-  if [ -f $WORKDIR/php/${TYPE}55.ini ]; then
-    TYPE_PHP="-v $WORKDIR/php/${TYPE}55.ini:/etc/php5/docker_setup.ini"
-  else
-    TYPE_PHP="" # default alredy include when docker build
+  # detect php version from image, mount php/{TYPE}{PHPVER}.ini to match image layout
+  TYPE_PHP="" # without -t, use default already include when docker build
+  if [ -n "$TYPE" ]; then
+    PHP_VER=$(docker run --rm --entrypoint php $REPOS -r 'echo PHP_MAJOR_VERSION.".".PHP_MINOR_VERSION;' 2>/dev/null)
+    if [ -n "$PHP_VER" ]; then
+      PHP_SUFFIX=${PHP_VER/./}
+      if [ "$PHP_VER" = "5.5" ]; then
+        PHP_ETC="/etc/php5"
+      else
+        PHP_ETC="/etc/php/$PHP_VER"
+      fi
+      if [ -f $WORKDIR/php/${TYPE}${PHP_SUFFIX}.ini ]; then
+        TYPE_PHP="-v $WORKDIR/php/${TYPE}${PHP_SUFFIX}.ini:$PHP_ETC/docker_setup.ini"
+      fi
+      if [ -f $WORKDIR/php/${TYPE}${PHP_SUFFIX}_cli.ini ]; then
+        TYPE_PHP="$TYPE_PHP -v $WORKDIR/php/${TYPE}${PHP_SUFFIX}_cli.ini:$PHP_ETC/cli/conf.d/default${PHP_SUFFIX}_cli.ini"
+      fi
+    else
+      echo -e "\e[1;33m[WARNING]\e[0m Can't detect php version of $REPOS, use php config from image."
+    fi
   fi
   if [ -f $WORKDIR/php/${TYPE}_opcache_blacklist ]; then
     TYPE_PHP_BLACKLIST="-v $WORKDIR/php/${TYPE}_opcache_blacklist:/etc/php/opcache_blacklist"
