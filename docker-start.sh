@@ -168,10 +168,20 @@ if [ -z "$STARTED" ] && [ -z "$STOPPED" ]; then
   fi
 
   # TYPE
-  if [ -n "$TYPE" ] && [ -f $WORKDIR/mysql/${TYPE}103.cnf ]; then
-    TYPE_MYSQL="-v $WORKDIR/mysql/${TYPE}103.cnf:/etc/mysql/mariadb.cnf"
-  else
+  # detect mariadb version from image, mount mysql/{TYPE}{MARIADB_SUFFIX}.cnf to match image layout
+  MARIADB_SUFFIX="103"
+  MARIADB_VER=$(docker run --rm --entrypoint mysqld $REPOS --version 2>/dev/null | grep -Po 'Ver \K[0-9]+\.[0-9]+')
+  if [ -z "$MARIADB_VER" ]; then
+    echo -e "\e[1;33m[WARNING]\e[0m Can't detect mariadb version of $REPOS, use mysql config of 10.3."
+  elif [ -f $WORKDIR/mysql/default${MARIADB_VER/./}.cnf ]; then
+    MARIADB_SUFFIX=${MARIADB_VER/./}
+  fi
+  if [ -n "$TYPE" ] && [ -f $WORKDIR/mysql/${TYPE}${MARIADB_SUFFIX}.cnf ]; then
+    TYPE_MYSQL="-v $WORKDIR/mysql/${TYPE}${MARIADB_SUFFIX}.cnf:/etc/mysql/mariadb.cnf"
+  elif [ "$MARIADB_SUFFIX" = "103" ]; then
     TYPE_MYSQL="-v $WORKDIR/mysql/my103.cnf:/etc/mysql/mariadb.cnf"
+  else
+    TYPE_MYSQL="-v $WORKDIR/mysql/default${MARIADB_SUFFIX}.cnf:/etc/mysql/mariadb.cnf"
   fi
   # detect php version from image, mount php/{TYPE}{PHPVER}.ini to match image layout
   TYPE_PHP="" # without -t, use default already include when docker build
@@ -220,6 +230,7 @@ if [ -z "$STARTED" ] && [ -z "$STOPPED" ]; then
              --add-host=dockerhost:$HOSTIP \
              -h $HOSTNAME \
              --restart=unless-stopped \
+             --stop-timeout 75 \
              -p ${BIND}$PORT_WWW:80 \
              -p ${BIND}$PORT_DB:3306 \
              -v /var/www/sites/$DOMAIN:/var/www/html \
