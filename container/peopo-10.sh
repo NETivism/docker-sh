@@ -7,8 +7,8 @@ if [ ! -d /var/www/html/log ]; then
   chown root /var/www/html/log
 fi
 
-# install drush
-composer require drush/drush
+#48202, drush is not in the image, put site drush (tracked in git) in PATH
+ln -sf /var/www/html/vendor/bin/drush /usr/local/bin/drush
 
 #42010, install ffmpeg
 if [ $(dpkg -l | grep "^ii.*ffmpeg" | wc -l) -eq 0 ]; then
